@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Bravonotes</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%237A2FE0'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --p-50:#f7f2ff;
+    --p-100:#ede0ff;
+    --p-200:#d9c2ff;
+    --p-300:#bf9bff;
+    --p-400:#a374fb;
+    --p-500:#8b4ef2;
+    --p-600:#7A2FE0;
+    --p-700:#5f22b3;
+    --p-800:#481f87;
+    --p-900:#2f1457;
+
+    --pink:#f472b6;
+    --pink-soft:#fce3f0;
+    --blue:#60a5fa;
+    --blue-soft:#e2edfd;
+    --amber:#fbbf24;
+    --amber-soft:#fdf2da;
+    --green:#4ade80;
+    --green-soft:#e3f9ec;
+    --rose:#fb7185;
+    --rose-soft:#fde2e5;
+
+    --ink:#241b3d;
+    --ink-soft:rgba(36,27,61,.68);
+    --ink-mute:rgba(36,27,61,.48);
+    --ink-faint:rgba(36,27,61,.28);
+
+    --glass:rgba(255,255,255,.6);
+    --glass-strong:rgba(255,255,255,.82);
+    --glass-border:rgba(255,255,255,.7);
+    --glass-shadow:0 8px 32px rgba(90,40,190,.14);
+    --glass-shadow-lg:0 20px 50px rgba(70,30,160,.22);
+
+    --r-s:12px;
+    --r-m:18px;
+    --r-l:26px;
+    --r-pill:999px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:'Plus Jakarta Sans', sans-serif;
+    color:var(--ink);
+    background:#f1e9ff;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.brand-word{font-family:'Sora', sans-serif;}
+  button{font-family:inherit;}
+  svg.icon{width:20px;height:20px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;display:block;flex-shrink:0;}
+  ::selection{background:var(--p-200);}
+
+  /* ---------- background atmosphere ---------- */
+  .blob{position:fixed;border-radius:50%;filter:blur(70px);z-index:0;opacity:.55;pointer-events:none;}
+  .blob1{width:340px;height:340px;background:var(--p-400);top:-120px;left:-100px;}
+  .blob2{width:300px;height:300px;background:var(--pink);top:30%;right:-140px;opacity:.4;}
+  .blob3{width:280px;height:280px;background:var(--blue);bottom:-100px;left:-80px;opacity:.4;}
+  .blob4{width:220px;height:220px;background:var(--p-300);bottom:10%;right:-60px;opacity:.35;}
+
+  /* ---------- shell / mobile-first ---------- */
+  .shell{
+    position:relative;z-index:1;
+    max-width:460px;margin:0 auto;
+    min-height:100vh;
+    display:flex;flex-direction:column;
+  }
+
+  /* ---------- LOGIN ---------- */
+  #login-screen{
+    position:relative;z-index:1;
+    min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+  }
+  .login-card{
+    width:100%;max-width:380px;
+    background:var(--glass-strong);
+    backdrop-filter:blur(24px) saturate(180%);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    border:1px solid var(--glass-border);
+    border-radius:var(--r-l);
+    box-shadow:var(--glass-shadow-lg);
+    padding:36px 26px 28px;
+  }
+  .login-logo{display:flex;justify-content:center;margin-bottom:16px;}
+  .login-card h1{font-size:26px;font-weight:800;margin:0 0 4px;text-align:center;color:var(--p-700);}
+  .login-card p.sub{color:var(--ink-mute);margin:0 0 26px;font-size:13.5px;text-align:center;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:7px;}
+  .field input{
+    width:100%;padding:13px 15px;border-radius:var(--r-s);
+    border:1.5px solid rgba(122,47,224,.15);background:rgba(255,255,255,.7);
+    font-size:15px;color:var(--ink);outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  .field input:focus{border-color:var(--p-500);box-shadow:0 0 0 4px var(--p-100);}
+  .btn-primary{
+    width:100%;padding:14px;border:none;border-radius:var(--r-s);
+    background:linear-gradient(135deg, var(--p-500), var(--p-700));
+    color:#fff;font-weight:700;font-size:15px;letter-spacing:.01em;
+    cursor:pointer;margin-top:6px;box-shadow:0 10px 24px rgba(122,47,224,.35);
+    transition:transform .12s ease, box-shadow .15s ease;
+  }
+  .btn-primary:hover{box-shadow:0 12px 28px rgba(122,47,224,.45);}
+  .btn-primary:active{transform:scale(.98);}
+  .login-foot{margin-top:16px;font-size:12px;color:var(--ink-faint);text-align:center;}
+  .btn-google{
+    width:100%;padding:13px;border-radius:var(--r-s);border:1.5px solid rgba(36,27,61,.14);
+    background:#fff;color:var(--ink);font-weight:700;font-size:14.5px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;
+    box-shadow:0 2px 8px rgba(36,27,61,.08);transition:transform .1s ease, box-shadow .15s ease;
+  }
+  .btn-google:hover{box-shadow:0 4px 14px rgba(36,27,61,.14);}
+  .btn-google:active{transform:scale(.98);}
+
+  /* ---------- HEADER ---------- */
+  #app{display:none;}
+  #app.active{display:block;}
+  header.topbar{
+    position:sticky;top:0;z-index:20;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 18px;margin:10px 10px 0;
+    background:var(--glass);
+    backdrop-filter:blur(20px) saturate(180%);
+    -webkit-backdrop-filter:blur(20px) saturate(180%);
+    border:1px solid var(--glass-border);
+    border-radius:var(--r-l);
+    box-shadow:var(--glass-shadow);
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-word{font-size:18px;font-weight:800;color:var(--p-700);letter-spacing:-.01em;}
+  .avatar-btn{
+    width:38px;height:38px;border-radius:50%;border:none;cursor:pointer;
+    background:linear-gradient(135deg, var(--p-400), var(--p-700));
+    color:#fff;font-weight:700;font-size:14px;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 12px rgba(122,47,224,.3);
+  }
+
+  .user-sheet{
+    position:fixed;inset:0;z-index:60;display:none;align-items:flex-end;justify-content:center;
+  }
+  .user-sheet.active{display:flex;}
+  .user-sheet .scrim{position:absolute;inset:0;background:rgba(47,20,87,.35);backdrop-filter:blur(2px);}
+  .user-sheet .panel{
+    position:relative;width:100%;max-width:460px;
+    background:var(--glass-strong);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);
+    border:1px solid var(--glass-border);border-top-left-radius:var(--r-l);border-top-right-radius:var(--r-l);
+    padding:22px 22px 30px;box-shadow:var(--glass-shadow-lg);
+    animation:slideup .2s ease;
+  }
+  @keyframes slideup{from{transform:translateY(24px);opacity:0;}to{transform:none;opacity:1;}}
+  .user-sheet .row{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+  .user-sheet .avatar-lg{
+    width:52px;height:52px;border-radius:50%;
+    background:linear-gradient(135deg, var(--p-400), var(--p-700));color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:19px;
+  }
+  .user-sheet .name{font-weight:700;font-size:15.5px;}
+  .user-sheet .mail{font-size:12.5px;color:var(--ink-mute);}
+  .btn-logout{
+    width:100%;padding:13px;border-radius:var(--r-s);border:1.5px solid rgba(122,47,224,.18);
+    background:rgba(255,255,255,.5);color:var(--p-700);font-weight:700;font-size:14px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  }
+
+  /* ---------- MAIN ---------- */
+  main{padding:18px 12px 110px;}
+  .page{display:none;}
+  .page.active{display:block;animation:fadein .22s ease;}
+  @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+  .page-head{display:flex;align-items:flex-end;justify-content:space-between;margin:6px 4px 16px;gap:10px;}
+  .page-head h1{font-size:24px;font-weight:800;margin:0;}
+  .page-head .sub{color:var(--ink-mute);font-size:12.5px;margin-top:3px;}
+  .fab-btn{
+    display:flex;align-items:center;gap:6px;
+    padding:10px 15px;border-radius:var(--r-pill);border:none;
+    background:linear-gradient(135deg, var(--p-500), var(--p-700));color:#fff;
+    font-weight:700;font-size:13px;cursor:pointer;flex-shrink:0;
+    box-shadow:0 8px 20px rgba(122,47,224,.3);
+    transition:transform .1s ease;
+  }
+  .fab-btn:active{transform:scale(.95);}
+
+  .glass-card{
+    background:var(--glass);backdrop-filter:blur(18px) saturate(180%);-webkit-backdrop-filter:blur(18px) saturate(180%);
+    border:1px solid var(--glass-border);border-radius:var(--r-m);box-shadow:var(--glass-shadow);
+  }
+
+  /* icon square (image1-style app icon) */
+  .icon-sq{
+    width:38px;height:38px;border-radius:12px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .icon-sq svg{width:19px;height:19px;}
+  .isq-purple{background:var(--p-100);color:var(--p-700);}
+  .isq-blue{background:var(--blue-soft);color:#2563eb;}
+  .isq-pink{background:var(--pink-soft);color:#db2777;}
+  .isq-amber{background:var(--amber-soft);color:#b45309;}
+  .isq-green{background:var(--green-soft);color:#15803d;}
+  .isq-rose{background:var(--rose-soft);color:#be123c;}
+
+  /* ---------- CALENDAR ---------- */
+  .day-card{margin-bottom:12px;padding:14px 14px 12px;}
+  .day-card.today{border-color:var(--p-400);box-shadow:0 0 0 3px var(--p-100), var(--glass-shadow);}
+  .day-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .day-card-head .left{display:flex;align-items:center;gap:9px;}
+  .day-card-head .dname{font-weight:700;font-size:14.5px;}
+  .day-card-head .dtoday-tag{font-size:10.5px;font-weight:700;color:var(--p-700);background:var(--p-100);padding:2px 8px;border-radius:20px;}
+  .pending-dot{width:8px;height:8px;border-radius:50%;background:var(--rose);}
+  .add-class-btn{
+    background:none;border:none;color:var(--p-600);cursor:pointer;
+    display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;padding:6px 4px;
+  }
+  .class-row{
+    display:flex;align-items:center;gap:11px;
+    background:rgba(255,255,255,.55);border-radius:14px;padding:10px 11px;margin-bottom:7px;
+  }
+  .class-row:last-child{margin-bottom:0;}
+  .class-main{flex:1;min-width:0;}
+  .class-time{font-size:11px;font-weight:700;color:var(--ink-mute);}
+  .class-subject{font-size:14px;font-weight:700;margin-top:1px;}
+  .class-pending{display:flex;align-items:center;gap:4px;font-size:11.5px;color:#be123c;margin-top:3px;font-weight:600;}
+  .class-pending svg{width:12px;height:12px;}
+  .class-del{background:none;border:none;color:var(--ink-faint);cursor:pointer;padding:4px;flex-shrink:0;}
+  .class-del:hover{color:var(--rose);}
+  .day-empty{color:var(--ink-faint);font-size:12.5px;padding:8px 4px;}
+
+  /* ---------- CARDS / GRIDS ---------- */
+  .grid-cards{display:grid;grid-template-columns:1fr;gap:12px;}
+  @media (min-width:460px){ .grid-cards{grid-template-columns:1fr 1fr;} }
+  .note-card{padding:16px;cursor:pointer;position:relative;min-height:120px;display:flex;flex-direction:column;}
+  .note-card h3{margin:0 0 6px;font-size:15.5px;font-weight:700;padding-right:20px;}
+  .note-card .prev{font-size:12.5px;color:var(--ink-mute);line-height:1.55;flex:1;overflow:hidden;}
+  .note-card .meta{font-size:10.5px;color:var(--ink-faint);margin-top:10px;font-weight:600;}
+  .note-card .del{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--ink-faint);cursor:pointer;padding:2px;}
+  .note-card .del:hover{color:var(--rose);}
+
+  .empty-state{
+    text-align:center;padding:50px 20px;color:var(--ink-mute);
+    border:1.5px dashed rgba(122,47,224,.25);border-radius:var(--r-l);
+    background:rgba(255,255,255,.35);
+  }
+  .empty-state .icon-sq{margin:0 auto 12px;width:48px;height:48px;border-radius:16px;}
+  .empty-state .icon-sq svg{width:23px;height:23px;}
+  .empty-state p{margin:2px 0 0;font-size:13px;}
+
+  /* ---------- TASKS ---------- */
+  .task-filters{display:flex;gap:7px;margin-bottom:14px;padding:0 4px;}
+  .chip-filter{
+    padding:7px 14px;border-radius:var(--r-pill);border:1.5px solid rgba(122,47,224,.15);
+    background:rgba(255,255,255,.5);font-size:12.5px;font-weight:700;color:var(--ink-mute);cursor:pointer;
+  }
+  .chip-filter.active{background:var(--p-700);color:#fff;border-color:var(--p-700);}
+  .task-list{display:flex;flex-direction:column;gap:9px;}
+  .task-row{display:flex;align-items:flex-start;gap:12px;padding:13px 14px;}
+  .task-check{
+    width:23px;height:23px;border-radius:8px;border:2px solid rgba(122,47,224,.3);
+    flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;
+    margin-top:1px;transition:all .12s ease;background:rgba(255,255,255,.6);color:transparent;
+  }
+  .task-check svg{width:14px;height:14px;stroke-width:3;}
+  .task-check.done{background:linear-gradient(135deg, var(--p-500), var(--p-700));border-color:transparent;color:#fff;}
+  .task-main{flex:1;min-width:0;}
+  .task-title{font-size:14.5px;font-weight:700;}
+  .task-row.done .task-title{text-decoration:line-through;color:var(--ink-faint);}
+  .task-tags{display:flex;gap:7px;margin-top:6px;flex-wrap:wrap;}
+  .tag{font-size:10.5px;padding:3px 9px;border-radius:20px;background:var(--p-50);color:var(--p-700);font-weight:700;display:flex;align-items:center;gap:4px;}
+  .tag svg{width:11px;height:11px;}
+  .tag.due{background:var(--amber-soft);color:#92610a;}
+  .task-del{background:none;border:none;color:var(--ink-faint);cursor:pointer;padding:3px;}
+  .task-del:hover{color:var(--rose);}
+
+  /* ---------- APUNTES ---------- */
+  .apunte-card{overflow:hidden;display:flex;flex-direction:column;}
+  .apunte-thumb{height:110px;background:var(--p-50);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .apunte-thumb img{width:100%;height:100%;object-fit:cover;}
+  .apunte-thumb .icon-sq{width:46px;height:46px;border-radius:14px;}
+  .apunte-thumb .icon-sq svg{width:21px;height:21px;}
+  .apunte-body{padding:13px 14px;flex:1;display:flex;flex-direction:column;}
+  .apunte-body h3{font-size:14px;margin:0 0 3px;font-weight:700;}
+  .apunte-body .meta{font-size:10.5px;color:var(--ink-mute);margin-bottom:11px;font-weight:600;}
+  .apunte-actions{display:flex;gap:7px;margin-top:auto;}
+
+  .btn-ghost-sm{
+    flex:1;padding:8px;border-radius:10px;border:1.5px solid rgba(122,47,224,.16);
+    background:rgba(255,255,255,.5);color:var(--p-700);font-weight:700;font-size:11.5px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:5px;
+  }
+  .btn-ghost-sm svg{width:13px;height:13px;}
+
+  /* ---------- BOTTOM NAV ---------- */
+  nav.tabbar{
+    position:fixed;left:0;right:0;bottom:14px;z-index:30;
+    display:flex;justify-content:center;
+  }
+  .tabbar-inner{
+    display:flex;gap:2px;padding:8px;
+    background:var(--glass-strong);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);
+    border:1px solid var(--glass-border);border-radius:var(--r-pill);box-shadow:var(--glass-shadow-lg);
+  }
+  .nav-item{
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+    padding:9px 16px;border-radius:var(--r-pill);border:none;background:none;cursor:pointer;
+    color:var(--ink-mute);transition:all .15s ease;
+  }
+  .nav-item svg{width:20px;height:20px;}
+  .nav-item span{font-size:10px;font-weight:700;}
+  .nav-item.active{background:linear-gradient(135deg, var(--p-500), var(--p-700));color:#fff;box-shadow:0 6px 16px rgba(122,47,224,.35);}
+
+  /* ---------- MODAL ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(47,20,87,.35);backdrop-filter:blur(3px);display:none;align-items:flex-end;justify-content:center;z-index:50;}
+  .overlay.active{display:flex;}
+  @media (min-width:520px){ .overlay{align-items:center;padding:20px;} }
+  .modal{
+    background:var(--glass-strong);backdrop-filter:blur(26px) saturate(180%);-webkit-backdrop-filter:blur(26px) saturate(180%);
+    border:1px solid var(--glass-border);
+    border-top-left-radius:var(--r-l);border-top-right-radius:var(--r-l);
+    width:100%;max-width:460px;box-shadow:var(--glass-shadow-lg);
+    padding:22px 20px calc(24px + env(safe-area-inset-bottom));max-height:88vh;overflow-y:auto;
+    animation:slideup .2s ease;
+  }
+  @media (min-width:520px){ .modal{border-radius:var(--r-l);} }
+  .modal h2{margin:0 0 16px;font-size:20px;font-weight:800;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  textarea{
+    width:100%;padding:13px 15px;border-radius:var(--r-s);border:1.5px solid rgba(122,47,224,.15);
+    font-family:inherit;font-size:14px;resize:vertical;min-height:100px;outline:none;background:rgba(255,255,255,.6);color:var(--ink);
+  }
+  textarea:focus,select:focus{border-color:var(--p-500);box-shadow:0 0 0 4px var(--p-100);}
+  select{
+    width:100%;padding:12px 13px;border-radius:var(--r-s);border:1.5px solid rgba(122,47,224,.15);
+    font-family:inherit;font-size:14px;background:rgba(255,255,255,.6);color:var(--ink);
+  }
+  .check-field{display:flex;align-items:center;gap:9px;margin:6px 0 16px;}
+  .check-field input{width:18px;height:18px;accent-color:var(--p-600);}
+  .check-field label{font-size:13.5px;color:var(--ink-soft);margin:0;}
+  .modal-actions{display:flex;gap:9px;margin-top:16px;}
+  .btn{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:7px;
+    padding:12px;border-radius:var(--r-s);border:none;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none;
+  }
+  .btn-dark{background:linear-gradient(135deg, var(--p-500), var(--p-700));color:#fff;box-shadow:0 8px 20px rgba(122,47,224,.3);}
+  .btn-ghost{background:rgba(255,255,255,.5);border:1.5px solid rgba(122,47,224,.16);color:var(--ink);}
+  .swatches{display:flex;gap:9px;margin-bottom:16px;}
+  .swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
+  .swatch.sel{border-color:var(--p-700);}
+  .tabbar-toggle{display:flex;gap:6px;margin-bottom:16px;background:rgba(122,47,224,.08);padding:4px;border-radius:12px;}
+  .tabbar-toggle button{
+    flex:1;padding:9px;border:none;background:none;border-radius:9px;font-size:12.5px;
+    font-weight:700;color:var(--ink-mute);cursor:pointer;
+  }
+  .tabbar-toggle button.active{background:rgba(255,255,255,.85);color:var(--p-700);box-shadow:0 2px 8px rgba(122,47,224,.15);}
+  .dropzone{
+    border:2px dashed rgba(122,47,224,.28);border-radius:var(--r-m);padding:26px 14px;
+    text-align:center;color:var(--ink-mute);font-size:12.5px;cursor:pointer;margin-bottom:16px;
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+  }
+  .dropzone svg{width:26px;height:26px;color:var(--p-500);}
+  .dropzone.drag{border-color:var(--p-500);background:var(--p-50);}
+  .toast{
+    position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--p-800);color:#fff;padding:11px 20px;border-radius:var(--r-pill);
+    font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:all .25s ease;z-index:99;
+    box-shadow:0 10px 26px rgba(47,20,87,.35);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+<div class="blob blob4"></div>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="64" height="64" rx="18" fill="url(#lg)"/>
+        <g stroke="#fff" stroke-width="3" stroke-linecap="round">
+          <line x1="16" y1="20" x2="16" y2="24"/>
+          <line x1="16" y1="30" x2="16" y2="34"/>
+          <line x1="16" y1="40" x2="16" y2="44"/>
+        </g>
+        <path d="M22 16h12a8 8 0 0 1 0 16h-12z" fill="#fff" opacity=".95"/>
+        <path d="M22 32h12a8 8 0 0 1 0 16H22V32z" fill="#fff" opacity=".95"/>
+        <path d="M22 32h10v16h-10z" fill="none"/>
+        <path d="M34 40l8 8h-8z" fill="#e9d8ff"/>
+        <line x1="26" y1="21" x2="34" y2="21" stroke="#7A2FE0" stroke-width="2.4" stroke-linecap="round"/>
+        <line x1="26" y1="26" x2="31" y2="26" stroke="#7A2FE0" stroke-width="2.4" stroke-linecap="round"/>
+        <defs>
+          <linearGradient id="lg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#9A5CF7"/><stop offset="1" stop-color="#5F22B3"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <h1>Bravonotes</h1>
+    <p class="sub">Tu horario, tareas y apuntes en un solo lugar.</p>
+    <button class="btn-google" id="btn-google-login">
+      <span data-icon="google"></span> Continuar con Google
+    </button>
+    <p class="login-foot">Se guarda en tu cuenta, nadie más lo ve.</p>
+  </div>
+</div>
+
+<div id="app">
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <svg width="30" height="30" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="64" height="64" rx="18" fill="url(#lg2)"/>
+          <g stroke="#fff" stroke-width="3" stroke-linecap="round">
+            <line x1="16" y1="20" x2="16" y2="24"/><line x1="16" y1="30" x2="16" y2="34"/><line x1="16" y1="40" x2="16" y2="44"/>
+          </g>
+          <path d="M22 16h12a8 8 0 0 1 0 16h-12z" fill="#fff" opacity=".95"/>
+          <path d="M22 32h12a8 8 0 0 1 0 16H22V32z" fill="#fff" opacity=".95"/>
+          <path d="M34 40l8 8h-8z" fill="#e9d8ff"/>
+          <line x1="26" y1="21" x2="34" y2="21" stroke="#7A2FE0" stroke-width="2.4" stroke-linecap="round"/>
+          <line x1="26" y1="26" x2="31" y2="26" stroke="#7A2FE0" stroke-width="2.4" stroke-linecap="round"/>
+          <defs><linearGradient id="lg2" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse"><stop stop-color="#9A5CF7"/><stop offset="1" stop-color="#5F22B3"/></linearGradient></defs>
+        </svg>
+        <span class="brand-word">Bravonotes</span>
+      </div>
+      <button class="avatar-btn" id="btn-avatar">?</button>
+    </header>
+
+    <main>
+      <!-- CALENDARIO -->
+      <section class="page active" id="page-calendario">
+        <div class="page-head">
+          <div><h1>Calendario</h1><div class="sub" id="today-lbl"></div></div>
+          <button class="fab-btn" id="btn-add-class"><span data-icon="plus"></span>Clase</button>
+        </div>
+        <div id="week-list"></div>
+      </section>
+
+      <!-- TAREAS -->
+      <section class="page" id="page-tareas">
+        <div class="page-head">
+          <div><h1>Tareas</h1><div class="sub" id="tasks-count-lbl"></div></div>
+          <button class="fab-btn" id="btn-add-task"><span data-icon="plus"></span>Tarea</button>
+        </div>
+        <div class="task-filters">
+          <button class="chip-filter active" data-filter="all">Todas</button>
+          <button class="chip-filter" data-filter="pending">Pendientes</button>
+          <button class="chip-filter" data-filter="done">Hechas</button>
+        </div>
+        <div class="task-list" id="task-list"></div>
+      </section>
+
+      <!-- NOTAS -->
+      <section class="page" id="page-notas">
+        <div class="page-head">
+          <div><h1>Notas</h1><div class="sub" id="notes-count-lbl"></div></div>
+          <button class="fab-btn" id="btn-add-note"><span data-icon="plus"></span>Nota</button>
+        </div>
+        <div class="grid-cards" id="notes-grid"></div>
+      </section>
+
+      <!-- APUNTES -->
+      <section class="page" id="page-apuntes">
+        <div class="page-head">
+          <div><h1>Apuntes</h1><div class="sub" id="apuntes-count-lbl"></div></div>
+          <button class="fab-btn" id="btn-add-apunte"><span data-icon="plus"></span>Subir</button>
+        </div>
+        <div class="grid-cards" id="apuntes-grid"></div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<nav class="tabbar" id="tabbar" style="display:none;">
+  <div class="tabbar-inner">
+    <button class="nav-item active" data-page="calendario"><span data-icon="calendar"></span><span>Agenda</span></button>
+    <button class="nav-item" data-page="tareas"><span data-icon="checksq"></span><span>Tareas</span></button>
+    <button class="nav-item" data-page="notas"><span data-icon="edit"></span><span>Notas</span></button>
+    <button class="nav-item" data-page="apuntes"><span data-icon="clip"></span><span>Apuntes</span></button>
+  </div>
+</nav>
+
+<div class="user-sheet" id="user-sheet">
+  <div class="scrim"></div>
+  <div class="panel">
+    <div class="row">
+      <div class="avatar-lg" id="sheet-avatar">?</div>
+      <div>
+        <div class="name" id="sheet-name">—</div>
+        <div class="mail" id="sheet-mail">—</div>
+      </div>
+    </div>
+    <button class="btn-logout" id="btn-logout"><span data-icon="logout"></span>Cerrar sesión</button>
+  </div>
+</div>
+
+<!-- Modal: clase -->
+<div class="overlay" id="modal-clase">
+  <div class="modal">
+    <h2>Nueva clase</h2>
+    <div class="field"><label>Materia</label><input id="cl-subject" type="text" placeholder="Ej. Cálculo II"></div>
+    <div class="row2">
+      <div class="field"><label>Día</label>
+        <select id="cl-day">
+          <option value="0">Lunes</option><option value="1">Martes</option><option value="2">Miércoles</option>
+          <option value="3">Jueves</option><option value="4">Viernes</option><option value="5">Sábado</option><option value="6">Domingo</option>
+        </select>
+      </div>
+      <div class="field"><label>Hora</label><input id="cl-time" type="time" value="08:00"></div>
+    </div>
+    <div class="field"><label>Color</label></div>
+    <div class="swatches" id="cl-swatches"></div>
+    <div class="check-field">
+      <input type="checkbox" id="cl-has-pending">
+      <label for="cl-has-pending">Tiene algo pendiente para ese día</label>
+    </div>
+    <div class="field" id="cl-pending-wrap" style="display:none;">
+      <label>¿Qué es lo pendiente?</label>
+      <input id="cl-pending-text" type="text" placeholder="Ej. Entregar taller 3">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close>Cancelar</button>
+      <button class="btn btn-dark" id="cl-save">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: tarea -->
+<div class="overlay" id="modal-tarea">
+  <div class="modal">
+    <h2>Nueva tarea</h2>
+    <div class="field"><label>Título</label><input id="tk-title" type="text" placeholder="Ej. Leer capítulo 4"></div>
+    <div class="row2">
+      <div class="field"><label>Fecha límite (opcional)</label><input id="tk-date" type="date"></div>
+      <div class="field"><label>Día de clase (opcional)</label>
+        <select id="tk-day">
+          <option value="">— Ninguno —</option>
+          <option value="0">Lunes</option><option value="1">Martes</option><option value="2">Miércoles</option>
+          <option value="3">Jueves</option><option value="4">Viernes</option><option value="5">Sábado</option><option value="6">Domingo</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close>Cancelar</button>
+      <button class="btn btn-dark" id="tk-save">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: nota -->
+<div class="overlay" id="modal-nota">
+  <div class="modal">
+    <h2 id="nt-heading">Nueva nota</h2>
+    <div class="field"><label>Título</label><input id="nt-title" type="text" placeholder="Ej. Ideas ensayo de historia"></div>
+    <div class="field"><label>Contenido</label><textarea id="nt-content" placeholder="Escribe aquí..." style="min-height:160px;"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close>Cancelar</button>
+      <button class="btn btn-dark" id="nt-save">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: apunte -->
+<div class="overlay" id="modal-apunte">
+  <div class="modal">
+    <h2>Subir apunte</h2>
+    <div class="tabbar-toggle">
+      <button class="active" data-tab="texto">Texto</button>
+      <button data-tab="archivo">Foto / documento</button>
+    </div>
+    <div id="ap-tab-texto">
+      <div class="field"><label>Título</label><input id="ap-title-text" type="text" placeholder="Ej. Resumen clase de física"></div>
+      <div class="field"><label>Contenido</label><textarea id="ap-content-text" placeholder="Escribe tu apunte..."></textarea></div>
+    </div>
+    <div id="ap-tab-archivo" style="display:none;">
+      <div class="field"><label>Título</label><input id="ap-title-file" type="text" placeholder="Ej. Foto del tablero"></div>
+      <div class="dropzone" id="ap-dropzone">
+        <span id="ap-dz-icon"></span>
+        <div id="ap-dropzone-text">Arrastra un archivo aquí o toca para elegir<br><span style="font-size:11px;">Imágenes o documentos, máx. 4 MB</span></div>
+      </div>
+      <input type="file" id="ap-file-input" style="display:none;" accept="image/*,.pdf,.doc,.docx,.txt">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" data-close>Cancelar</button>
+      <button class="btn btn-dark" id="ap-save">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: ver nota / apunte -->
+<div class="overlay" id="modal-view">
+  <div class="modal" id="modal-view-body"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
