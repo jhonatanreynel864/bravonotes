@@ -85,6 +85,25 @@ git push -u origin main
 
 ¡Listo! Ya tienes Bravonotes con login real de Google, base de datos y almacenamiento de archivos, publicado en la web.
 
+## Agregarla a la pantalla de inicio del celular (como app nativa)
+
+Bravonotes ya está preparada como **PWA** (Progressive Web App), con su propio ícono, así que se puede "instalar" desde el navegador sin pasar por ninguna tienda de aplicaciones.
+
+**En Android (Chrome):**
+1. Abre tu link de Bravonotes (el de Vercel o tu dominio propio).
+2. Te debería aparecer solo un banner abajo diciendo "Agregar Bravonotes a la pantalla de inicio" — dale **Instalar**.
+3. Si no aparece solo, abre el menú (los tres puntos, arriba a la derecha) → **"Agregar a pantalla de inicio"** o **"Instalar app"**.
+
+**En iPhone (Safari):**
+1. Abre tu link de Bravonotes en Safari (tiene que ser Safari, no funciona igual desde Chrome en iPhone).
+2. Toca el botón de compartir (el cuadrado con la flecha hacia arriba).
+3. Baja y toca **"Agregar a inicio"** ("Add to Home Screen").
+4. Confirma el nombre y toca **"Agregar"**.
+
+En ambos casos te va a quedar un ícono morado con el logo de Bravonotes en tu pantalla de inicio, y al abrirlo se ve a pantalla completa, sin la barra del navegador — se siente como una app nativa.
+
+> Nota técnica: los archivos `manifest.json`, `sw.js` y la carpeta `icons/` ya están en el proyecto — no necesitas hacer nada más, solo que estén subidos junto con el resto del código a Vercel (con `git add . / commit / push` como ya hiciste antes, Vercel los vuelve a desplegar solo).
+
 ## Notas
 
 - Los archivos (fotos/documentos) se guardan en un bucket privado de Supabase Storage; cada quien solo puede ver los suyos.
