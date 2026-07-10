@@ -450,7 +450,7 @@
       if(a.type==='text'){
         const { data: row, error } = await supabase.from('apuntes').select('content').eq('id', a.id).single();
         if(error) throw error;
-        body.innerHTML = `<h2>${escapeHtml(a.title)}</h2><div style="white-space:pre-wrap;font-size:14px;line-height:1.6;max-height:55vh;overflow:auto;">${escapeHtml(row.content||'')}</div>
+        body.innerHTML = `<h2>${escapeHtml(a.title)}</h2><div style="white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;font-size:14px;line-height:1.6;max-height:55vh;overflow-y:auto;">${escapeHtml(row.content||'')}</div>
           <div class="modal-actions"><button class="btn btn-ghost" data-close>Cerrar</button></div>`;
       } else {
         const { data: row, error } = await supabase.from('apuntes').select('file_path,file_name').eq('id', a.id).single();
