@@ -44,6 +44,21 @@
     --ink-mute:rgba(36,27,61,.48);
     --ink-faint:rgba(36,27,61,.28);
 
+    --g-bg:#eafbf1;
+    --g-mint:#d1fae5;
+    --g-mint2:#bbf7d0;
+    --g-green:#16a34a;
+    --g-green-deep:#166534;
+    --g-lime:#84cc16;
+    --g-teal:#14b8a6;
+    --g-amber:#f59e0b;
+    --g-ink:#0f2e1c;
+    --g-ink-soft:rgba(15,46,28,.62);
+    --g-ink-mute:rgba(15,46,28,.42);
+    --g-card:#ffffff;
+    --g-card-line:#d6f2e0;
+    --g-shadow:0 10px 28px rgba(22,101,52,.10);
+
     --glass:rgba(255,255,255,.6);
     --glass-strong:rgba(255,255,255,.82);
     --glass-border:rgba(255,255,255,.7);
@@ -322,12 +337,13 @@
   }
   .nav-item{
     display:flex;flex-direction:column;align-items:center;gap:3px;
-    padding:9px 16px;border-radius:var(--r-pill);border:none;background:none;cursor:pointer;
+    padding:8px 11px;border-radius:var(--r-pill);border:none;background:none;cursor:pointer;
     color:var(--ink-mute);transition:all .15s ease;
   }
-  .nav-item svg{width:20px;height:20px;}
-  .nav-item span{font-size:10px;font-weight:700;}
+  .nav-item svg{width:19px;height:19px;}
+  .nav-item span{font-size:9.5px;font-weight:700;}
   .nav-item.active{background:linear-gradient(135deg, var(--p-500), var(--p-700));color:#fff;box-shadow:0 6px 16px rgba(122,47,224,.35);}
+  .nav-item.active.nav-item-gastos{background:linear-gradient(135deg, #4ade80, #15803d);box-shadow:0 6px 16px rgba(21,128,61,.35);}
 
   /* ---------- MODAL ---------- */
   .overlay{position:fixed;inset:0;background:rgba(47,20,87,.35);backdrop-filter:blur(3px);display:none;align-items:flex-end;justify-content:center;z-index:50;}
@@ -386,6 +402,134 @@
     box-shadow:0 10px 26px rgba(47,20,87,.35);
   }
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  /* ============================================================
+     GASTOS UNIVERSITARIOS — tema visual distinto (verde, playful)
+     ============================================================ */
+  .gastos-theme{
+    position:relative;
+    margin:-18px -12px 0;
+    padding:18px 12px 20px;
+    background:
+      radial-gradient(120% 60% at 15% 0%, #d7fbe4 0%, transparent 60%),
+      radial-gradient(120% 60% at 100% 20%, #c9f7e6 0%, transparent 55%),
+      var(--g-bg);
+    border-radius:28px 28px 0 0;
+    color:var(--g-ink);
+    font-family:'Plus Jakarta Sans', sans-serif;
+  }
+  .gastos-theme .g-blob-decor{position:absolute;border-radius:50%;filter:blur(50px);opacity:.5;pointer-events:none;z-index:0;}
+  .gastos-theme .g-blob1{width:170px;height:170px;background:var(--g-mint2);top:-30px;right:-40px;}
+  .gastos-theme .g-blob2{width:150px;height:150px;background:#a7f3d0;bottom:120px;left:-50px;opacity:.4;}
+
+  .gastos-theme .g-head{position:relative;z-index:1;display:flex;align-items:center;gap:14px;margin:6px 4px 18px;}
+  .gastos-theme .g-head h1{font-size:23px;font-weight:800;margin:0;color:var(--g-ink);}
+  .gastos-theme .g-head .g-sub{font-size:12.5px;color:var(--g-ink-mute);margin-top:2px;}
+
+  .g-mascot{flex-shrink:0;width:54px;height:54px;animation:g-float 3.2s ease-in-out infinite;}
+  @keyframes g-float{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-7px) rotate(-2deg);}}
+  .g-mascot.g-mascot-sm{width:44px;height:44px;}
+
+  .gastos-theme .g-card{
+    position:relative;z-index:1;
+    background:var(--g-card);border:1px solid var(--g-card-line);
+    border-radius:24px;box-shadow:var(--g-shadow);
+    padding:18px;margin-bottom:14px;
+    animation:g-rise .35s ease both;
+  }
+  @keyframes g-rise{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+
+  .g-budget-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;}
+  .g-budget-top .lbl{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--g-ink-mute);}
+  .g-budget-top .amt{font-size:26px;font-weight:800;margin-top:3px;color:var(--g-ink);}
+  .g-budget-top .amt small{font-size:13px;font-weight:600;color:var(--g-ink-mute);}
+  .g-edit-budget{
+    background:var(--g-mint);border:none;color:var(--g-green-deep);
+    width:34px;height:34px;border-radius:50%;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  }
+  .g-edit-budget svg{width:15px;height:15px;}
+  .g-bar-track{height:14px;border-radius:20px;background:var(--g-mint);overflow:hidden;position:relative;}
+  .g-bar-fill{
+    height:100%;border-radius:20px;width:0%;
+    background:linear-gradient(90deg, var(--g-lime), var(--g-green));
+    transition:width 1s cubic-bezier(.22,1,.36,1);
+  }
+  .g-bar-fill.over{background:linear-gradient(90deg, #f97316, #ef4444);}
+  .g-budget-foot{display:flex;justify-content:space-between;margin-top:9px;font-size:12px;color:var(--g-ink-mute);font-weight:600;}
+  .g-budget-foot .ok{color:var(--g-green-deep);}
+  .g-budget-foot .warn{color:#dc2626;}
+
+  .g-section-title{font-size:14.5px;font-weight:800;margin:4px 4px 10px;position:relative;z-index:1;color:var(--g-ink);}
+
+  .g-chart-row{display:flex;align-items:center;gap:20px;}
+  .g-donut-wrap{flex-shrink:0;position:relative;width:118px;height:118px;}
+  .g-donut-wrap svg{width:100%;height:100%;transform:rotate(-90deg);}
+  .g-donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .g-donut-center .pct{font-size:19px;font-weight:800;color:var(--g-ink);}
+  .g-donut-center .txt{font-size:9.5px;color:var(--g-ink-mute);font-weight:700;text-transform:uppercase;}
+  .g-legend{flex:1;display:flex;flex-direction:column;gap:9px;min-width:0;}
+  .g-legend-row{display:flex;align-items:center;gap:9px;font-size:12.5px;}
+  .g-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .g-legend-label{flex:1;color:var(--g-ink-soft);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .g-legend-amt{font-weight:800;color:var(--g-ink);font-size:12.5px;}
+
+  .g-cat-btn-row{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 4px;margin-bottom:2px;}
+  .g-add-btn{
+    display:flex;align-items:center;gap:7px;padding:11px 18px;border-radius:20px;border:none;
+    background:linear-gradient(135deg, #4ade80, #16a34a);color:#fff;font-weight:800;font-size:13.5px;
+    cursor:pointer;box-shadow:0 10px 22px rgba(22,163,74,.32);flex-shrink:0;
+    transition:transform .1s ease;
+  }
+  .g-add-btn:active{transform:scale(.96);}
+
+  .g-expense-row{display:flex;align-items:center;gap:12px;padding:12px 6px;border-bottom:1px solid var(--g-card-line);}
+  .g-expense-row:last-child{border-bottom:none;}
+  .g-cat-ic{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .g-cat-ic svg{width:18px;height:18px;}
+  .g-cat-transporte{background:#d1fae5;color:#059669;}
+  .g-cat-alimentacion{background:#ecfccb;color:#65a30d;}
+  .g-cat-fotocopias{background:#ccfbf1;color:#0d9488;}
+  .g-cat-otros{background:#fef3c7;color:#b45309;}
+  .g-expense-main{flex:1;min-width:0;}
+  .g-expense-cat{font-size:13.5px;font-weight:700;color:var(--g-ink);}
+  .g-expense-note{font-size:11.5px;color:var(--g-ink-mute);overflow-wrap:anywhere;}
+  .g-expense-date{font-size:10.5px;color:var(--g-ink-mute);margin-top:2px;}
+  .g-expense-amt{font-weight:800;font-size:14px;color:var(--g-ink);flex-shrink:0;}
+  .g-expense-del{background:none;border:none;color:var(--g-ink-mute);cursor:pointer;padding:4px;flex-shrink:0;}
+  .g-expense-del:hover{color:#dc2626;}
+
+  .g-empty{text-align:center;padding:30px 16px 10px;position:relative;z-index:1;}
+  .g-empty .g-mascot{margin:0 auto 12px;}
+  .g-empty p{font-size:13px;color:var(--g-ink-mute);margin:0 0 16px;}
+
+  .g-cat-select{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px;}
+  .g-cat-opt{
+    display:flex;align-items:center;gap:9px;padding:11px;border-radius:14px;
+    border:1.5px solid var(--g-card-line);background:#fff;cursor:pointer;
+  }
+  .g-cat-opt.sel{border-color:var(--g-green);background:var(--g-mint);}
+  .g-cat-opt .g-cat-ic{width:30px;height:30px;border-radius:9px;}
+  .g-cat-opt .g-cat-ic svg{width:14px;height:14px;}
+  .g-cat-opt span{font-size:12.5px;font-weight:700;color:var(--g-ink);}
+
+  .g-field{margin-bottom:14px;}
+  .g-field label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--g-ink-mute);margin-bottom:7px;}
+  .g-field input{
+    width:100%;padding:13px 15px;border-radius:14px;border:1.5px solid var(--g-card-line);
+    background:#fbfffc;font-size:15px;color:var(--g-ink);outline:none;font-family:inherit;
+  }
+  .g-field input:focus{border-color:var(--g-green);box-shadow:0 0 0 4px var(--g-mint);}
+  .g-btn-save{
+    width:100%;padding:14px;border:none;border-radius:14px;
+    background:linear-gradient(135deg, #4ade80, #16a34a);color:#fff;font-weight:800;font-size:15px;
+    cursor:pointer;box-shadow:0 10px 24px rgba(22,163,74,.32);
+  }
+  .g-btn-cancel{
+    width:100%;padding:13px;border:1.5px solid var(--g-card-line);border-radius:14px;
+    background:#fff;color:var(--g-ink);font-weight:700;font-size:14px;cursor:pointer;margin-top:9px;
+  }
+  .gastos-overlay .modal{background:#fff;border:1px solid var(--g-card-line, #d6f2e0);}
+  .gastos-overlay .modal h2{color:var(--g-ink);}
 </style>
 </head>
 <body>
@@ -460,6 +604,73 @@
         </div>
         <div class="grid-cards" id="apuntes-grid"></div>
       </section>
+
+      <!-- GASTOS UNIVERSITARIOS -->
+      <section class="page gastos-theme" id="page-gastos">
+        <div class="g-blob-decor g-blob1"></div>
+        <div class="g-blob-decor g-blob2"></div>
+
+        <div class="g-head">
+          <div class="g-mascot" id="g-mascot-head"></div>
+          <div>
+            <h1>Gastos universitarios</h1>
+            <div class="g-sub">Transporte, comida, fotocopias y más — todo en un solo lugar</div>
+          </div>
+        </div>
+
+        <div class="g-card" id="g-budget-card" style="display:none;">
+          <div class="g-budget-top">
+            <div>
+              <div class="lbl" id="g-budget-month"></div>
+              <div class="amt"><span id="g-spent-amt">$0</span> <small id="g-budget-amt">de $0</small></div>
+            </div>
+            <button class="g-edit-budget" id="btn-edit-budget" title="Editar presupuesto"><span data-icon="edit"></span></button>
+          </div>
+          <div class="g-bar-track"><div class="g-bar-fill" id="g-bar-fill"></div></div>
+          <div class="g-budget-foot">
+            <span id="g-budget-remaining"></span>
+            <span id="g-budget-pct"></span>
+          </div>
+        </div>
+
+        <div class="g-card" id="g-nobudget-card">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div class="g-mascot g-mascot-sm" id="g-mascot-nobudget"></div>
+            <div style="flex:1;">
+              <div style="font-weight:800;font-size:14.5px;margin-bottom:2px;">Aún no tienes presupuesto</div>
+              <div style="font-size:12px;color:var(--g-ink-mute);">Define cuánto quieres gastar este mes</div>
+            </div>
+          </div>
+          <button class="g-btn-save" style="margin-top:14px;" id="btn-set-budget">Definir presupuesto</button>
+        </div>
+
+        <div id="g-chart-section">
+          <div class="g-section-title">En qué se va tu plata</div>
+          <div class="g-card">
+            <div class="g-chart-row">
+              <div class="g-donut-wrap">
+                <svg viewBox="0 0 120 120" id="g-donut-svg">
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#eafbf1" stroke-width="16"/>
+                  <g id="g-donut-segments"></g>
+                </svg>
+                <div class="g-donut-center">
+                  <div class="pct" id="g-donut-total">$0</div>
+                  <div class="txt">este mes</div>
+                </div>
+              </div>
+              <div class="g-legend" id="g-legend"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="g-section-title" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>Movimientos recientes</span>
+          <button class="g-add-btn" id="btn-add-gasto"><span data-icon="plusSm"></span>Gasto</button>
+        </div>
+        <div class="g-card" id="g-expenses-card">
+          <div id="g-expenses-list"></div>
+        </div>
+      </section>
     </main>
   </div>
 </div>
@@ -470,6 +681,7 @@
     <button class="nav-item" data-page="tareas"><span data-icon="checksq"></span><span>Tareas</span></button>
     <button class="nav-item" data-page="notas"><span data-icon="edit"></span><span>Notas</span></button>
     <button class="nav-item" data-page="apuntes"><span data-icon="clip"></span><span>Apuntes</span></button>
+    <button class="nav-item nav-item-gastos" data-page="gastos"><span data-icon="wallet"></span><span>Gastos</span></button>
   </div>
 </nav>
 
@@ -577,6 +789,41 @@
       <button class="btn btn-ghost" data-close>Cancelar</button>
       <button class="btn btn-dark" id="ap-save">Guardar</button>
     </div>
+  </div>
+</div>
+
+<!-- Modal: presupuesto -->
+<div class="overlay gastos-overlay" id="modal-presupuesto">
+  <div class="modal">
+    <h2>Presupuesto del mes</h2>
+    <div class="g-field">
+      <label>¿Cuánto quieres gastar este mes?</label>
+      <input id="gp-amount" type="number" min="0" step="1000" placeholder="Ej. 300000">
+    </div>
+    <button class="g-btn-save" id="gp-save">Guardar presupuesto</button>
+    <button class="g-btn-cancel" data-close>Cancelar</button>
+  </div>
+</div>
+
+<!-- Modal: nuevo gasto -->
+<div class="overlay gastos-overlay" id="modal-gasto">
+  <div class="modal">
+    <h2>Nuevo gasto</h2>
+    <div class="g-cat-select" id="ge-cat-select"></div>
+    <div class="g-field">
+      <label>Monto</label>
+      <input id="ge-amount" type="number" min="0" step="500" placeholder="Ej. 15000">
+    </div>
+    <div class="g-field">
+      <label>Nota (opcional)</label>
+      <input id="ge-note" type="text" placeholder="Ej. Bus al campus">
+    </div>
+    <div class="g-field">
+      <label>Fecha</label>
+      <input id="ge-date" type="date">
+    </div>
+    <button class="g-btn-save" id="ge-save">Guardar gasto</button>
+    <button class="g-btn-cancel" data-close>Cancelar</button>
   </div>
 </div>
 

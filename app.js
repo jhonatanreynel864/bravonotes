@@ -9,6 +9,26 @@
     {name:'rose', bg:'var(--rose-soft)', border:'#be123c'},
   ];
 
+  const EXP_CATEGORIES = [
+    {key:'transporte', label:'Transporte', icon:'car', cls:'g-cat-transporte', color:'#10b981'},
+    {key:'alimentacion', label:'Alimentación', icon:'food', cls:'g-cat-alimentacion', color:'#84cc16'},
+    {key:'fotocopias', label:'Fotocopias', icon:'copy', cls:'g-cat-fotocopias', color:'#14b8a6'},
+    {key:'otros', label:'Otros', icon:'dots', cls:'g-cat-otros', color:'#f59e0b'},
+  ];
+
+  function mascotSvg(fillOuter, fillInner){
+    return `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <path d="M50,6 C72,4 94,22 92,46 C90,70 74,92 48,94 C24,96 6,76 8,50 C10,26 28,8 50,6 Z" fill="${fillOuter}"/>
+      <circle cx="52" cy="54" r="26" fill="${fillInner}"/>
+      <circle cx="43" cy="50" r="3.2" fill="#0f2e1c"/>
+      <circle cx="61" cy="50" r="3.2" fill="#0f2e1c"/>
+      <path d="M44 62 Q52 68 60 62" stroke="#0f2e1c" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M78 18 l3 7 l7 3 l-7 3 l-3 7 l-3-7 l-7-3 l7-3 Z" fill="#f59e0b"/>
+    </svg>`;
+  }
+  const MASCOT_A = mascotSvg('#bbf7d0', '#16a34a');
+  const MASCOT_B = mascotSvg('#99f6e4', '#0d9488');
+
   // ---------- Supabase client ----------
   if(!window.SUPABASE_URL || window.SUPABASE_URL.includes('TU-PROYECTO')){
     document.addEventListener('DOMContentLoaded', ()=>{
@@ -21,11 +41,12 @@
   }
   const supabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
-  let data = { user:null, schedule:[], tasks:[], notes:[], apuntesIndex:[] };
+  let data = { user:null, schedule:[], tasks:[], notes:[], apuntesIndex:[], expenses:[], budget:null };
   let currentFilter = 'all';
   let selectedColor = 'purple';
   let editingNoteId = null;
   let pendingFile = null; // raw File object waiting to be uploaded
+  let selectedExpCategory = 'transporte';
 
   const $ = (id) => document.getElementById(id);
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2,10) + Date.now().toString(36));
@@ -47,6 +68,12 @@
     eyeSm: '<svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
     trashSm: '<svg class="icon" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>',
     upload: '<svg class="icon" viewBox="0 0 24 24"><path d="M16 16l-4-4-4 4"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>',
+    wallet: '<svg class="icon" viewBox="0 0 24 24"><path d="M21 12V7a2 2 0 0 0-2-2H5a2 2 0 0 0 0 4h16v5"/><path d="M3 9v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3"/><path d="M18 13a2 2 0 1 0 0 4h3v-4Z"/></svg>',
+    plusSm: '<svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+    car: '<svg class="icon" viewBox="0 0 24 24"><path d="M5 17h14l-1.5-6.5a2 2 0 0 0-2-1.5H8.5a2 2 0 0 0-2 1.5L5 17Z"/><circle cx="7.5" cy="17.5" r="1.5"/><circle cx="16.5" cy="17.5" r="1.5"/></svg>',
+    food: '<svg class="icon" viewBox="0 0 24 24"><path d="M18 8h1a3 3 0 0 1 0 6h-1"/><path d="M2 8h16v6a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8Z"/><line x1="6" y1="2" x2="6" y2="5"/><line x1="10" y1="2" x2="10" y2="5"/><line x1="14" y1="2" x2="14" y2="5"/></svg>',
+    copy: '<svg class="icon" viewBox="0 0 24 24"><rect x="4" y="4" width="12" height="16" rx="1.5"/><line x1="7" y1="9" x2="13" y2="9"/><line x1="7" y1="13" x2="13" y2="13"/><line x1="7" y1="17" x2="11" y2="17"/></svg>',
+    dots: '<svg class="icon" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg>',
     google: '<svg viewBox="0 0 24 24" width="19" height="19"><path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.28 1.48-1.13 2.73-2.4 3.58v2.98h3.88c2.27-2.09 3.54-5.17 3.54-8.8z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.07 7.93-2.91l-3.88-2.98c-1.07.72-2.45 1.16-4.05 1.16-3.12 0-5.76-2.11-6.71-4.94H1.28v3.09C3.25 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.29 14.33A7.19 7.19 0 0 1 4.91 12c0-.81.14-1.6.38-2.33V6.58H1.28A11.98 11.98 0 0 0 0 12c0 1.93.46 3.76 1.28 5.42l4.01-3.09z"/><path fill="#EA4335" d="M12 4.77c1.76 0 3.34.61 4.58 1.79l3.44-3.44C17.94 1.19 15.24 0 12 0 7.31 0 3.25 2.7 1.28 6.58l4.01 3.09C6.24 6.84 8.88 4.77 12 4.77z"/></svg>',
   };
   ICON.calendarSm = ICON.calendar;
@@ -147,7 +174,31 @@
   // FETCH ALL DATA FROM SUPABASE
   // ============================================================
   async function fetchAll(){
-    await Promise.all([fetchSchedule(), fetchTasks(), fetchNotes(), fetchApuntes()]);
+    await Promise.all([fetchSchedule(), fetchTasks(), fetchNotes(), fetchApuntes(), fetchExpenses(), fetchBudget()]);
+  }
+  function currentMonthKey(){
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+  }
+  function monthRange(monthKey){
+    const [y,m] = monthKey.split('-').map(Number);
+    const start = `${monthKey}-01`;
+    const lastDay = new Date(y, m, 0).getDate();
+    const end = `${monthKey}-${String(lastDay).padStart(2,'0')}`;
+    return {start, end};
+  }
+  async function fetchExpenses(){
+    const {start, end} = monthRange(currentMonthKey());
+    const { data: rows, error } = await supabase.from('expenses').select('*')
+      .gte('expense_date', start).lte('expense_date', end)
+      .order('expense_date', {ascending:false}).order('created_at', {ascending:false});
+    if(error){ data.expenses = []; return; }
+    data.expenses = rows.map(r=>({ id:r.id, category:r.category, amount:Number(r.amount), note:r.note, date:r.expense_date, createdAt:r.created_at }));
+  }
+  async function fetchBudget(){
+    const { data: row, error } = await supabase.from('budgets').select('*').eq('month', currentMonthKey()).maybeSingle();
+    if(error || !row){ data.budget = null; return; }
+    data.budget = { id: row.id, amount: Number(row.amount) };
   }
   async function fetchSchedule(){
     const { data: rows, error } = await supabase.from('schedule').select('*').order('day').order('time');
@@ -535,6 +586,173 @@
     }
   });
 
+  // ============================================================
+  // GASTOS UNIVERSITARIOS
+  // ============================================================
+  function formatCOP(n){
+    return '$' + Math.round(n||0).toLocaleString('es-CO');
+  }
+  function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  function renderGastos(){
+    $('g-mascot-head').innerHTML = MASCOT_A;
+    $('g-mascot-nobudget').innerHTML = MASCOT_B;
+
+    const monthLabel = capitalize(new Date().toLocaleDateString('es-ES', {month:'long', year:'numeric'}));
+    $('g-budget-month').textContent = monthLabel;
+
+    const spent = data.expenses.reduce((s,e)=> s + e.amount, 0);
+
+    if(data.budget){
+      $('g-budget-card').style.display = 'block';
+      $('g-nobudget-card').style.display = 'none';
+      $('g-spent-amt').textContent = formatCOP(spent);
+      $('g-budget-amt').textContent = 'de ' + formatCOP(data.budget.amount);
+      const pct = data.budget.amount > 0 ? (spent / data.budget.amount) * 100 : 0;
+      const fill = $('g-bar-fill');
+      fill.classList.toggle('over', pct > 100);
+      requestAnimationFrame(()=>{ fill.style.width = Math.min(pct, 100) + '%'; });
+      $('g-budget-pct').textContent = Math.round(pct) + '%';
+      const remaining = data.budget.amount - spent;
+      const remEl = $('g-budget-remaining');
+      if(remaining >= 0){
+        remEl.textContent = 'Te quedan ' + formatCOP(remaining);
+        remEl.className = 'ok';
+      } else {
+        remEl.textContent = 'Superaste el presupuesto por ' + formatCOP(-remaining);
+        remEl.className = 'warn';
+      }
+    } else {
+      $('g-budget-card').style.display = 'none';
+      $('g-nobudget-card').style.display = 'block';
+    }
+
+    // ---- donut chart ----
+    const totals = {};
+    EXP_CATEGORIES.forEach(c=> totals[c.key] = 0);
+    data.expenses.forEach(e=>{ totals[e.category] = (totals[e.category]||0) + e.amount; });
+
+    const r = 50, circumference = 2 * Math.PI * r;
+    const segWrap = $('g-donut-segments');
+    segWrap.innerHTML = '';
+    if(spent > 0){
+      let cumulative = 0;
+      EXP_CATEGORIES.forEach(c=>{
+        const amt = totals[c.key];
+        if(amt <= 0) return;
+        const segLen = (amt / spent) * circumference;
+        const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+        circle.setAttribute('cx','60'); circle.setAttribute('cy','60'); circle.setAttribute('r', r);
+        circle.setAttribute('fill','none');
+        circle.setAttribute('stroke', c.color);
+        circle.setAttribute('stroke-width','16');
+        circle.setAttribute('stroke-dasharray', `${segLen} ${circumference - segLen}`);
+        circle.setAttribute('stroke-dashoffset', String(-cumulative));
+        circle.style.transition = 'stroke-dasharray 1s cubic-bezier(.22,1,.36,1)';
+        segWrap.appendChild(circle);
+        cumulative += segLen;
+      });
+    }
+    $('g-donut-total').textContent = formatCOP(spent);
+
+    const legend = $('g-legend');
+    legend.innerHTML = '';
+    EXP_CATEGORIES.forEach(c=>{
+      const row = document.createElement('div');
+      row.className = 'g-legend-row';
+      row.innerHTML = `<span class="g-legend-dot" style="background:${c.color};"></span><span class="g-legend-label">${c.label}</span><span class="g-legend-amt">${formatCOP(totals[c.key])}</span>`;
+      legend.appendChild(row);
+    });
+
+    // ---- expenses list ----
+    const list = $('g-expenses-list');
+    if(data.expenses.length === 0){
+      list.innerHTML = `<div class="g-empty"><div class="g-mascot" style="width:60px;height:60px;">${MASCOT_B}</div><p>Aún no registras gastos este mes.</p></div>`;
+    } else {
+      list.innerHTML = '';
+      data.expenses.forEach(e=>{
+        const cat = EXP_CATEGORIES.find(c=>c.key===e.category) || EXP_CATEGORIES[3];
+        const row = document.createElement('div');
+        row.className = 'g-expense-row';
+        row.innerHTML = `
+          <div class="g-cat-ic ${cat.cls}">${ICON[cat.icon]}</div>
+          <div class="g-expense-main">
+            <div class="g-expense-cat">${cat.label}${e.note ? ' · ' + escapeHtml(e.note) : ''}</div>
+            <div class="g-expense-date">${formatDateLong(e.date)}</div>
+          </div>
+          <div class="g-expense-amt">${formatCOP(e.amount)}</div>
+          <button class="g-expense-del" data-id="${e.id}">${ICON.x}</button>
+        `;
+        row.querySelector('.g-expense-del').addEventListener('click', async ()=>{
+          const { error } = await supabase.from('expenses').delete().eq('id', e.id);
+          if(error){ toast('No se pudo eliminar'); return; }
+          data.expenses = data.expenses.filter(x=>x.id!==e.id);
+          renderGastos();
+        });
+        list.appendChild(row);
+      });
+    }
+  }
+  function formatDateLong(iso){
+    const d = new Date(iso + 'T00:00:00');
+    if(isNaN(d)) return '';
+    return d.toLocaleDateString('es-ES', {day:'numeric', month:'short'});
+  }
+
+  $('btn-set-budget').addEventListener('click', openBudgetModal);
+  $('btn-edit-budget').addEventListener('click', openBudgetModal);
+  function openBudgetModal(){
+    $('gp-amount').value = data.budget ? data.budget.amount : '';
+    $('modal-presupuesto').classList.add('active');
+  }
+  $('gp-save').addEventListener('click', async ()=>{
+    const amount = parseFloat($('gp-amount').value);
+    if(!amount || amount <= 0){ toast('Escribe un presupuesto válido'); return; }
+    const { data: row, error } = await supabase.from('budgets')
+      .upsert({ month: currentMonthKey(), amount }, { onConflict: 'user_id,month' })
+      .select().single();
+    if(error){ toast('No se pudo guardar el presupuesto'); return; }
+    data.budget = { id: row.id, amount: Number(row.amount) };
+    closeModals(); renderGastos(); toast('Presupuesto guardado');
+  });
+
+  function buildCatSelect(){
+    const wrap = $('ge-cat-select');
+    wrap.innerHTML = '';
+    EXP_CATEGORIES.forEach(c=>{
+      const opt = document.createElement('div');
+      opt.className = 'g-cat-opt' + (c.key===selectedExpCategory ? ' sel' : '');
+      opt.innerHTML = `<div class="g-cat-ic ${c.cls}">${ICON[c.icon]}</div><span>${c.label}</span>`;
+      opt.addEventListener('click', ()=>{ selectedExpCategory = c.key; buildCatSelect(); });
+      wrap.appendChild(opt);
+    });
+  }
+  $('btn-add-gasto').addEventListener('click', ()=>{
+    selectedExpCategory = 'transporte';
+    buildCatSelect();
+    $('ge-amount').value = '';
+    $('ge-note').value = '';
+    $('ge-date').value = new Date().toISOString().slice(0,10);
+    $('modal-gasto').classList.add('active');
+  });
+  $('ge-save').addEventListener('click', async ()=>{
+    const amount = parseFloat($('ge-amount').value);
+    if(!amount || amount <= 0){ toast('Escribe un monto válido'); return; }
+    const payload = {
+      category: selectedExpCategory, amount,
+      note: $('ge-note').value.trim() || null,
+      expense_date: $('ge-date').value || new Date().toISOString().slice(0,10),
+    };
+    const { data: row, error } = await supabase.from('expenses').insert(payload).select().single();
+    if(error){ toast('No se pudo guardar el gasto'); return; }
+    const {start, end} = monthRange(currentMonthKey());
+    if(row.expense_date >= start && row.expense_date <= end){
+      data.expenses.unshift({ id:row.id, category:row.category, amount:Number(row.amount), note:row.note, date:row.expense_date, createdAt:row.created_at });
+      data.expenses.sort((a,b)=> b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
+    }
+    closeModals(); renderGastos(); toast('Gasto agregado');
+  });
+
   // ---------- helpers ----------
   function escapeHtml(str){
     return String(str||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -553,7 +771,7 @@
   function emptyState(icon, cls, text){
     return `<div class="empty-state" style="grid-column:1/-1;"><div class="icon-sq ${cls}">${icon}</div><p>${text}</p></div>`;
   }
-  function renderAll(){ renderCalendar(); renderTasks(); renderNotes(); renderApuntes(); }
+  function renderAll(){ renderCalendar(); renderTasks(); renderNotes(); renderApuntes(); renderGastos(); }
 
   init();
 
