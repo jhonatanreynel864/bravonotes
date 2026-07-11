@@ -16,30 +16,22 @@
     {key:'otros', label:'Otros', icon:'dots', cls:'g-cat-otros', color:'#f59e0b'},
   ];
 
-  const MASCOT_A = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-    <path d="M18,52 C12,32 26,10 50,8 C74,6 92,22 90,46 C88,68 72,88 48,88 C26,88 22,70 18,52 Z" fill="#9b6bf2"/>
-    <path d="M32,42 Q36,35 43,39" stroke="#2a1a4a" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-    <path d="M57,39 Q64,35 68,42" stroke="#2a1a4a" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-    <ellipse cx="38" cy="49" rx="6.5" ry="8.5" fill="#fff"/>
-    <ellipse cx="63" cy="49" rx="6.5" ry="8.5" fill="#fff"/>
-    <circle cx="39.5" cy="51" r="3.6" fill="#1a1a2e"/>
-    <circle cx="64.5" cy="51" r="3.6" fill="#1a1a2e"/>
-    <ellipse cx="33" cy="63" rx="6" ry="3.5" fill="#c4a0ff" opacity=".75"/>
-    <ellipse cx="68" cy="63" rx="6" ry="3.5" fill="#c4a0ff" opacity=".75"/>
-    <path d="M42 67 Q50 73 58 67" stroke="#2a1a4a" stroke-width="2.8" fill="none" stroke-linecap="round"/>
-    <path d="M82 8 l2.6 6 l6 2.6 l-6 2.6 l-2.6 6 l-2.6-6 l-6-2.6 l6-2.6 Z" fill="#fbbf24"/>
-  </svg>`;
-  const MASCOT_B = `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-    <path d="M46,6 C64,4 82,16 84,36 C86,56 78,78 58,88 C40,97 18,88 12,68 C7,52 12,32 26,18 C32,11 39,7 46,6 Z" fill="#f9762e"/>
-    <ellipse cx="38" cy="44" rx="6.2" ry="7.8" fill="#fff"/>
-    <ellipse cx="61" cy="44" rx="6.2" ry="7.8" fill="#fff"/>
-    <circle cx="40" cy="46.5" r="3.4" fill="#241608"/>
-    <circle cx="63" cy="46.5" r="3.4" fill="#241608"/>
-    <ellipse cx="32" cy="58" rx="5.5" ry="3.2" fill="#ffb684" opacity=".85"/>
-    <ellipse cx="67" cy="58" rx="5.5" ry="3.2" fill="#ffb684" opacity=".85"/>
-    <path d="M38 63 Q49.5 74 61 63" stroke="#241608" stroke-width="2.8" fill="none" stroke-linecap="round"/>
-    <path d="M14 6 l2.6 6 l6 2.6 l-6 2.6 l-2.6 6 l-2.6-6 l-6-2.6 l6-2.6 Z" fill="#fde68a"/>
-  </svg>`;
+  function mascotSvg(fillOuter, fillInner, blush){
+    return `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+      <path d="M50,6 C72,4 94,22 92,46 C90,70 74,92 48,94 C24,96 6,76 8,50 C10,26 28,8 50,6 Z" fill="${fillOuter}"/>
+      <circle cx="52" cy="54" r="27" fill="${fillInner}"/>
+      <ellipse cx="38" cy="60" rx="5.5" ry="3.5" fill="${blush}" opacity=".55"/>
+      <ellipse cx="66" cy="60" rx="5.5" ry="3.5" fill="${blush}" opacity=".55"/>
+      <circle cx="43" cy="49" r="4" fill="#0f2e1c"/>
+      <circle cx="44.3" cy="47.3" r="1.3" fill="#fff"/>
+      <circle cx="62" cy="49" r="4" fill="#0f2e1c"/>
+      <circle cx="63.3" cy="47.3" r="1.3" fill="#fff"/>
+      <path d="M44 61 Q52 68 60 61" stroke="#0f2e1c" stroke-width="3.2" fill="none" stroke-linecap="round"/>
+      <path d="M79 16 l3.2 7.4 l7.4 3.2 l-7.4 3.2 l-3.2 7.4 l-3.2-7.4 l-7.4-3.2 l7.4-3.2 Z" fill="#fbbf24"/>
+    </svg>`;
+  }
+  const MASCOT_A = mascotSvg('#ddd6fe', '#8b4ef2', '#c4b5fd');
+  const MASCOT_B = mascotSvg('#fed7aa', '#f97316', '#fdba74');
 
   // ---------- Supabase client ----------
   if(!window.SUPABASE_URL || window.SUPABASE_URL.includes('TU-PROYECTO')){
