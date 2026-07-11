@@ -71,7 +71,7 @@
     --r-pill:999px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  html,body{height:100%;}
+  html,body{height:100%;overflow-x:hidden;}
   body{
     margin:0;
     padding-top:env(safe-area-inset-top);
@@ -79,6 +79,9 @@
     color:var(--ink);
     background:#f1e9ff;
     overflow-x:hidden;
+    touch-action:pan-y;
+    position:relative;
+    width:100%;
   }
   h1,h2,h3,.brand-word{font-family:'Sora', sans-serif;}
   button{font-family:inherit;}
@@ -407,8 +410,8 @@
      ============================================================ */
   .gastos-theme{
     position:relative;
-    margin:-18px -12px 0;
-    padding:18px 12px 20px;
+    margin:-18px -12px -110px;
+    padding:18px 12px calc(110px + 24px);
     background:
       radial-gradient(120% 60% at 15% 0%, #d7fbe4 0%, transparent 60%),
       radial-gradient(120% 60% at 100% 20%, #c9f7e6 0%, transparent 55%),
@@ -416,6 +419,7 @@
     border-radius:28px 28px 0 0;
     color:var(--g-ink);
     font-family:'Plus Jakarta Sans', sans-serif;
+    overflow:hidden;
   }
   .gastos-theme .g-blob-decor{position:absolute;border-radius:50%;filter:blur(50px);opacity:.5;pointer-events:none;z-index:0;}
   .gastos-theme .g-blob1{width:170px;height:170px;background:var(--g-mint2);top:-30px;right:-40px;}

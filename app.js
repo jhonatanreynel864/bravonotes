@@ -16,22 +16,8 @@
     {key:'otros', label:'Otros', icon:'dots', cls:'g-cat-otros', color:'#f59e0b'},
   ];
 
-  function mascotSvg(fillOuter, fillInner, blush){
-    return `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-      <path d="M50,6 C72,4 94,22 92,46 C90,70 74,92 48,94 C24,96 6,76 8,50 C10,26 28,8 50,6 Z" fill="${fillOuter}"/>
-      <circle cx="52" cy="54" r="27" fill="${fillInner}"/>
-      <ellipse cx="38" cy="60" rx="5.5" ry="3.5" fill="${blush}" opacity=".55"/>
-      <ellipse cx="66" cy="60" rx="5.5" ry="3.5" fill="${blush}" opacity=".55"/>
-      <circle cx="43" cy="49" r="4" fill="#0f2e1c"/>
-      <circle cx="44.3" cy="47.3" r="1.3" fill="#fff"/>
-      <circle cx="62" cy="49" r="4" fill="#0f2e1c"/>
-      <circle cx="63.3" cy="47.3" r="1.3" fill="#fff"/>
-      <path d="M44 61 Q52 68 60 61" stroke="#0f2e1c" stroke-width="3.2" fill="none" stroke-linecap="round"/>
-      <path d="M79 16 l3.2 7.4 l7.4 3.2 l-7.4 3.2 l-3.2 7.4 l-3.2-7.4 l-7.4-3.2 l7.4-3.2 Z" fill="#fbbf24"/>
-    </svg>`;
-  }
-  const MASCOT_A = mascotSvg('#ddd6fe', '#8b4ef2', '#c4b5fd');
-  const MASCOT_B = mascotSvg('#fed7aa', '#f97316', '#fdba74');
+  const MASCOT_A = `<img src="icons/mascots/mascot-purple.png" alt="" style="width:100%;height:100%;object-fit:contain;display:block;">`;
+  const MASCOT_B = `<img src="icons/mascots/mascot-pink.png" alt="" style="width:100%;height:100%;object-fit:contain;display:block;">`;
 
   // ---------- Supabase client ----------
   if(!window.SUPABASE_URL || window.SUPABASE_URL.includes('TU-PROYECTO')){
