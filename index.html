@@ -74,7 +74,6 @@
   html,body{height:100%;overflow-x:hidden;}
   body{
     margin:0;
-    padding-top:env(safe-area-inset-top);
     font-family:'Plus Jakarta Sans', sans-serif;
     color:var(--ink);
     background:#f1e9ff;
@@ -99,9 +98,11 @@
   .shell{
     position:relative;z-index:1;
     max-width:460px;margin:0 auto;
-    min-height:100vh;
-    min-height:100dvh;
+    height:100vh;
+    height:100dvh;
+    width:100%;
     display:flex;flex-direction:column;
+    overflow:hidden;
   }
 
   /* ---------- LOGIN ---------- */
@@ -155,12 +156,12 @@
 
   /* ---------- HEADER ---------- */
   #app{display:none;}
-  #app.active{display:block;}
+  #app.active{display:flex;height:100vh;height:100dvh;width:100%;}
   header.topbar{
-    position:sticky;top:0;z-index:20;
+    flex-shrink:0;z-index:20;
     display:flex;align-items:center;justify-content:space-between;
     padding:14px 18px;
-    margin:10px 10px 0;
+    margin:calc(10px + env(safe-area-inset-top)) 10px 10px;
     background:var(--glass);
     backdrop-filter:blur(20px) saturate(180%);
     -webkit-backdrop-filter:blur(20px) saturate(180%);
@@ -206,7 +207,7 @@
   }
 
   /* ---------- MAIN ---------- */
-  main{padding:18px 12px calc(24px + env(safe-area-inset-bottom));}
+  main{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 12px calc(24px + env(safe-area-inset-bottom));}
   .page{display:none;}
   .page.active{display:block;animation:fadein .22s ease;}
   @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
@@ -333,7 +334,7 @@
 
   /* ---------- BOTTOM NAV ---------- */
   nav.tabbar{
-    position:fixed;left:0;right:0;bottom:calc(8px + env(safe-area-inset-bottom));z-index:30;
+    position:fixed;left:0;right:0;bottom:calc(10px + env(safe-area-inset-bottom));z-index:30;
     display:flex;justify-content:center;
   }
   .tabbar-inner{
@@ -422,7 +423,6 @@
     border-radius:28px 28px 0 0;
     color:var(--g-ink);
     font-family:'Plus Jakarta Sans', sans-serif;
-    overflow:hidden;
   }
   .gastos-theme .g-blob-decor{position:absolute;border-radius:50%;filter:blur(50px);opacity:.5;pointer-events:none;z-index:0;}
   .gastos-theme .g-blob1{width:170px;height:170px;background:var(--g-mint2);top:-30px;right:-40px;}
@@ -679,18 +679,18 @@
         </div>
       </section>
     </main>
+
+    <nav class="tabbar" id="tabbar" style="display:none;">
+      <div class="tabbar-inner">
+        <button class="nav-item active" data-page="calendario"><span data-icon="calendar"></span><span>Agenda</span></button>
+        <button class="nav-item" data-page="tareas"><span data-icon="checksq"></span><span>Tareas</span></button>
+        <button class="nav-item" data-page="notas"><span data-icon="edit"></span><span>Notas</span></button>
+        <button class="nav-item" data-page="apuntes"><span data-icon="clip"></span><span>Apuntes</span></button>
+        <button class="nav-item nav-item-gastos" data-page="gastos"><span data-icon="wallet"></span><span>Gastos</span></button>
+      </div>
+    </nav>
   </div>
 </div>
-
-<nav class="tabbar" id="tabbar" style="display:none;">
-  <div class="tabbar-inner">
-    <button class="nav-item active" data-page="calendario"><span data-icon="calendar"></span><span>Agenda</span></button>
-    <button class="nav-item" data-page="tareas"><span data-icon="checksq"></span><span>Tareas</span></button>
-    <button class="nav-item" data-page="notas"><span data-icon="edit"></span><span>Notas</span></button>
-    <button class="nav-item" data-page="apuntes"><span data-icon="clip"></span><span>Apuntes</span></button>
-    <button class="nav-item nav-item-gastos" data-page="gastos"><span data-icon="wallet"></span><span>Gastos</span></button>
-  </div>
-</nav>
 
 <div class="user-sheet" id="user-sheet">
   <div class="scrim"></div>
