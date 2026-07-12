@@ -135,6 +135,7 @@
     $('login-screen').style.display = 'none';
     $('app').classList.add('active');
     $('tabbar').style.display = 'flex';
+    requestAnimationFrame(moveNavIndicator);
 
     const initial = (data.user.name||'?').trim()[0].toUpperCase();
     if(data.user.avatarUrl){
@@ -159,10 +160,21 @@
   // ============================================================
   // NAV / MODALS
   // ============================================================
+  function moveNavIndicator(){
+    const activeBtn = document.querySelector('.nav-item.active');
+    const indicator = $('nav-indicator');
+    if(!activeBtn || !indicator) return;
+    indicator.classList.toggle('gastos', activeBtn.classList.contains('nav-item-gastos'));
+    indicator.style.width = activeBtn.offsetWidth + 'px';
+    indicator.style.transform = `translateX(${activeBtn.offsetLeft}px)`;
+  }
+  window.addEventListener('resize', moveNavIndicator);
+
   document.querySelectorAll('.nav-item').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
+      moveNavIndicator();
       document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
       $('page-'+btn.dataset.page).classList.add('active');
       window.scrollTo({top:0, behavior:'smooth'});
