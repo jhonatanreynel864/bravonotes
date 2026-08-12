@@ -8,12 +8,17 @@
     {name:'pink', bg:'var(--pink-soft)', border:'#db2777'},
     {name:'rose', bg:'var(--rose-soft)', border:'#be123c'},
   ];
-
   const EXP_CATEGORIES = [
     {key:'transporte', label:'Transporte', icon:'car', cls:'g-cat-transporte', color:'#10b981'},
     {key:'alimentacion', label:'Alimentación', icon:'food', cls:'g-cat-alimentacion', color:'#84cc16'},
     {key:'fotocopias', label:'Fotocopias', icon:'copy', cls:'g-cat-fotocopias', color:'#14b8a6'},
     {key:'otros', label:'Otros', icon:'dots', cls:'g-cat-otros', color:'#f59e0b'},
+  ];
+  const WIDGET_OPTIONS = [
+    {key:'clases', label:'Clases de hoy', icon:'calendar'},
+    {key:'tareas', label:'Tareas pendientes', icon:'checksq'},
+    {key:'gastos', label:'Resumen de gastos', icon:'wallet'},
+    {key:'apuntes', label:'Apuntes recientes', icon:'clip'},
   ];
 
   function mascotSvg(fillOuter, fillInner, blush){
@@ -33,7 +38,6 @@
   const MASCOT_A = mascotSvg('#ddd6fe', '#8b4ef2', '#c4b5fd');
   const MASCOT_B = mascotSvg('#fed7aa', '#f97316', '#fdba74');
 
-  // ---------- Supabase client ----------
   if(!window.SUPABASE_URL || window.SUPABASE_URL.includes('TU-PROYECTO')){
     document.addEventListener('DOMContentLoaded', ()=>{
       const el = document.getElementById('login-screen');
@@ -45,12 +49,14 @@
   }
   const supabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
-  let data = { user:null, schedule:[], tasks:[], notes:[], apuntesIndex:[], expenses:[], budget:null };
+  let data = { user:null, schedule:[], tasks:[], notes:[], apuntesIndex:[], expenses:[], budget:null, monthlyTotals:[], widget:'clases' };
   let currentFilter = 'all';
   let selectedColor = 'purple';
   let editingNoteId = null;
-  let pendingFile = null; // raw File object waiting to be uploaded
+  let editingClassId = null;
+  let pendingFile = null;
   let selectedExpCategory = 'transporte';
+  let notifiedIds = new Set();
 
   const $ = (id) => document.getElementById(id);
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2,10) + Date.now().toString(36));
@@ -79,6 +85,8 @@
     copy: '<svg class="icon" viewBox="0 0 24 24"><rect x="4" y="4" width="12" height="16" rx="1.5"/><line x1="7" y1="9" x2="13" y2="9"/><line x1="7" y1="13" x2="13" y2="13"/><line x1="7" y1="17" x2="11" y2="17"/></svg>',
     dots: '<svg class="icon" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg>',
     google: '<svg viewBox="0 0 24 24" width="19" height="19"><path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.28 1.48-1.13 2.73-2.4 3.58v2.98h3.88c2.27-2.09 3.54-5.17 3.54-8.8z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.07 7.93-2.91l-3.88-2.98c-1.07.72-2.45 1.16-4.05 1.16-3.12 0-5.76-2.11-6.71-4.94H1.28v3.09C3.25 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.29 14.33A7.19 7.19 0 0 1 4.91 12c0-.81.14-1.6.38-2.33V6.58H1.28A11.98 11.98 0 0 0 0 12c0 1.93.46 3.76 1.28 5.42l4.01-3.09z"/><path fill="#EA4335" d="M12 4.77c1.76 0 3.34.61 4.58 1.79l3.44-3.44C17.94 1.19 15.24 0 12 0 7.31 0 3.25 2.7 1.28 6.58l4.01 3.09C6.24 6.84 8.88 4.77 12 4.77z"/></svg>',
+    settings: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+    bell: '<svg class="icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
   };
   ICON.calendarSm = ICON.calendar;
   document.querySelectorAll('[data-icon]').forEach(el=>{
@@ -104,28 +112,23 @@
     });
     if(error) toast('No se pudo iniciar sesión: ' + error.message);
   });
-
   $('btn-logout').addEventListener('click', async ()=>{
     $('user-sheet').classList.remove('active');
     await supabase.auth.signOut();
   });
-
   supabase.auth.onAuthStateChange((event, session)=>{
     if(event === 'SIGNED_IN' && session) enterApp(session.user);
     if(event === 'SIGNED_OUT') showLogin();
   });
-
   async function init(){
     const { data: { session } } = await supabase.auth.getSession();
     if(session) await enterApp(session.user);
   }
-
   function showLogin(){
     $('login-screen').style.display = 'flex';
     $('app').classList.remove('active');
     $('tabbar').style.display = 'none';
   }
-
   async function enterApp(user){
     data.user = {
       name: user.user_metadata?.full_name || user.user_metadata?.name || (user.email||'').split('@')[0],
@@ -152,13 +155,13 @@
 
     await fetchAll();
     renderAll();
+    startNotificationChecker();
   }
-
   $('btn-avatar').addEventListener('click', ()=> $('user-sheet').classList.add('active'));
   $('user-sheet').querySelector('.scrim').addEventListener('click', ()=> $('user-sheet').classList.remove('active'));
 
   // ============================================================
-  // NAV / MODALS
+  // NAV
   // ============================================================
   function moveNavIndicator(){
     const activeBtn = document.querySelector('.nav-item.active');
@@ -169,7 +172,6 @@
     indicator.style.transform = `translateX(${activeBtn.offsetLeft}px)`;
   }
   window.addEventListener('resize', moveNavIndicator);
-
   document.querySelectorAll('.nav-item').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
@@ -187,21 +189,38 @@
   });
 
   // ============================================================
-  // FETCH ALL DATA FROM SUPABASE
+  // FETCH ALL
   // ============================================================
   async function fetchAll(){
-    await Promise.all([fetchSchedule(), fetchTasks(), fetchNotes(), fetchApuntes(), fetchExpenses(), fetchBudget()]);
+    await Promise.all([fetchSchedule(), fetchTasks(), fetchNotes(), fetchApuntes(), fetchExpenses(), fetchBudget(), fetchMonthlyTotals(), fetchPrefs()]);
   }
-  function currentMonthKey(){
-    const d = new Date();
-    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
-  }
+  function currentMonthKey(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
   function monthRange(monthKey){
     const [y,m] = monthKey.split('-').map(Number);
     const start = `${monthKey}-01`;
     const lastDay = new Date(y, m, 0).getDate();
     const end = `${monthKey}-${String(lastDay).padStart(2,'0')}`;
     return {start, end};
+  }
+  async function fetchSchedule(){
+    const { data: rows, error } = await supabase.from('schedule').select('*').order('day').order('time');
+    if(error){ data.schedule=[]; return; }
+    data.schedule = rows.map(r=>({ id:r.id, subject:r.subject, day:r.day, time:r.time, color:r.color, hasPending:r.has_pending, pendingText:r.pending_text }));
+  }
+  async function fetchTasks(){
+    const { data: rows, error } = await supabase.from('tasks').select('*').order('created_at', {ascending:false});
+    if(error){ data.tasks=[]; return; }
+    data.tasks = rows.map(r=>({ id:r.id, title:r.title, done:r.done, dueDate:r.due_date, day:r.day, createdAt:r.created_at }));
+  }
+  async function fetchNotes(){
+    const { data: rows, error } = await supabase.from('notes').select('*').order('created_at', {ascending:false});
+    if(error){ data.notes=[]; return; }
+    data.notes = rows.map(r=>({ id:r.id, title:r.title, content:r.content, createdAt:r.created_at }));
+  }
+  async function fetchApuntes(){
+    const { data: rows, error } = await supabase.from('apuntes').select('id,title,type,file_name,file_size,created_at').order('created_at', {ascending:false});
+    if(error){ data.apuntesIndex=[]; return; }
+    data.apuntesIndex = rows.map(r=>({ id:r.id, title:r.title, type:r.type, fileName:r.file_name, size:r.file_size, createdAt:r.created_at }));
   }
   async function fetchExpenses(){
     const {start, end} = monthRange(currentMonthKey());
@@ -216,26 +235,86 @@
     if(error || !row){ data.budget = null; return; }
     data.budget = { id: row.id, amount: Number(row.amount) };
   }
-  async function fetchSchedule(){
-    const { data: rows, error } = await supabase.from('schedule').select('*').order('day').order('time');
-    if(error){ toast('Error cargando el calendario'); return; }
-    data.schedule = rows.map(r=>({ id:r.id, subject:r.subject, day:r.day, time:r.time, color:r.color, hasPending:r.has_pending, pendingText:r.pending_text }));
+  async function fetchMonthlyTotals(){
+    const now = new Date();
+    const monthsBack = 5;
+    const from = new Date(now.getFullYear(), now.getMonth()-monthsBack, 1);
+    const fromStr = from.toISOString().slice(0,10);
+    const { data: rows, error } = await supabase.from('expenses').select('amount,expense_date').gte('expense_date', fromStr);
+    const totals = {};
+    for(let i=monthsBack;i>=0;i--){
+      const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+      const key = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+      totals[key] = 0;
+    }
+    if(!error && rows){
+      rows.forEach(r=>{
+        const key = r.expense_date.slice(0,7);
+        if(totals[key] !== undefined) totals[key] += Number(r.amount);
+      });
+    }
+    data.monthlyTotals = Object.entries(totals).map(([key, total])=>({ key, total }));
   }
-  async function fetchTasks(){
-    const { data: rows, error } = await supabase.from('tasks').select('*').order('created_at', {ascending:false});
-    if(error){ toast('Error cargando tareas'); return; }
-    data.tasks = rows.map(r=>({ id:r.id, title:r.title, done:r.done, dueDate:r.due_date, day:r.day, createdAt:r.created_at }));
+  async function fetchPrefs(){
+    try{
+      const { data: row } = await supabase.from('user_prefs').select('*').maybeSingle();
+      if(row && row.widget) data.widget = row.widget;
+    }catch(e){ /* tabla puede no existir aún */ }
   }
-  async function fetchNotes(){
-    const { data: rows, error } = await supabase.from('notes').select('*').order('created_at', {ascending:false});
-    if(error){ toast('Error cargando notas'); return; }
-    data.notes = rows.map(r=>({ id:r.id, title:r.title, content:r.content, createdAt:r.created_at }));
+
+  // ============================================================
+  // WIDGET "HOY"
+  // ============================================================
+  function renderWidget(){
+    const titleEl = $('widget-title');
+    const body = $('widget-body');
+    const todayIdx = (new Date().getDay()+6)%7;
+
+    if(data.widget === 'clases'){
+      titleEl.textContent = 'Tus clases de hoy';
+      const todays = data.schedule.filter(c=>c.day===todayIdx).sort((a,b)=>a.time.localeCompare(b.time));
+      if(todays.length===0){ body.innerHTML = '<div class="widget-empty">No tienes clases hoy 🎉</div>'; return; }
+      body.innerHTML = todays.map(c=>`<div class="widget-row"><span class="t">${c.time}</span><span class="s">${escapeHtml(c.subject)}</span></div>`).join('');
+    } else if(data.widget === 'tareas'){
+      titleEl.textContent = 'Tareas pendientes';
+      const pending = data.tasks.filter(t=>!t.done).slice(0,4);
+      if(pending.length===0){ body.innerHTML = '<div class="widget-empty">No tienes tareas pendientes</div>'; return; }
+      body.innerHTML = pending.map(t=>`<div class="widget-row"><span class="t">${t.dueDate?formatDate(t.dueDate):'—'}</span><span class="s">${escapeHtml(t.title)}</span></div>`).join('');
+    } else if(data.widget === 'gastos'){
+      titleEl.textContent = 'Resumen de gastos';
+      const spent = data.expenses.reduce((s,e)=>s+e.amount,0);
+      if(data.budget){
+        const pct = data.budget.amount>0 ? Math.round((spent/data.budget.amount)*100) : 0;
+        body.innerHTML = `<div class="widget-row"><span class="t">${pct}%</span><span class="s">${formatCOP(spent)} de ${formatCOP(data.budget.amount)} este mes</span></div>`;
+      } else {
+        body.innerHTML = `<div class="widget-row"><span class="t"></span><span class="s">Llevas ${formatCOP(spent)} gastados este mes</span></div>`;
+      }
+    } else if(data.widget === 'apuntes'){
+      titleEl.textContent = 'Apuntes recientes';
+      const recent = data.apuntesIndex.slice(0,3);
+      if(recent.length===0){ body.innerHTML = '<div class="widget-empty">Aún no subes apuntes</div>'; return; }
+      body.innerHTML = recent.map(a=>`<div class="widget-row"><span class="t">${formatDate(a.createdAt)}</span><span class="s">${escapeHtml(a.title)}</span></div>`).join('');
+    }
   }
-  async function fetchApuntes(){
-    const { data: rows, error } = await supabase.from('apuntes').select('id,title,type,file_name,file_size,created_at').order('created_at', {ascending:false});
-    if(error){ toast('Error cargando apuntes'); return; }
-    data.apuntesIndex = rows.map(r=>({ id:r.id, title:r.title, type:r.type, fileName:r.file_name, size:r.file_size, createdAt:r.created_at }));
-  }
+  $('btn-widget-settings').addEventListener('click', ()=>{
+    const wrap = $('widget-opts');
+    wrap.innerHTML = '';
+    WIDGET_OPTIONS.forEach(o=>{
+      const el = document.createElement('div');
+      el.className = 'widget-opt' + (data.widget===o.key ? ' sel' : '');
+      el.innerHTML = `<div class="icon-sq isq-purple">${ICON[o.icon]}</div><span>${o.label}</span>`;
+      el.addEventListener('click', async ()=>{
+        data.widget = o.key;
+        try{
+          await supabase.from('user_prefs').upsert({ widget: o.key }, { onConflict:'user_id' });
+        }catch(e){}
+        renderWidget();
+        closeModals();
+      });
+      wrap.appendChild(el);
+    });
+    $('modal-widget').classList.add('active');
+  });
 
   // ============================================================
   // CALENDARIO
@@ -278,12 +357,16 @@
             </div>
             <button class="class-del" data-id="${c.id}">${ICON.x}</button>
           `;
+          row.addEventListener('click', (e)=>{
+            if(e.target.closest('.class-del')) return;
+            openClassModal(c.day, c);
+          });
           row.querySelector('.class-del').addEventListener('click', async (e)=>{
             e.stopPropagation();
             const { error } = await supabase.from('schedule').delete().eq('id', c.id);
             if(error){ toast('No se pudo eliminar'); return; }
             data.schedule = data.schedule.filter(x=>x.id!==c.id);
-            renderCalendar();
+            renderCalendar(); renderWidget();
           });
           body.appendChild(row);
         });
@@ -292,7 +375,6 @@
       wrap.appendChild(card);
     });
   }
-
   function buildSwatches(){
     const wrap = $('cl-swatches');
     wrap.innerHTML = '';
@@ -305,14 +387,17 @@
       wrap.appendChild(sw);
     });
   }
-  function openClassModal(dayIdx){
-    $('cl-subject').value = '';
-    $('cl-day').value = dayIdx;
-    $('cl-time').value = '08:00';
-    $('cl-has-pending').checked = false;
-    $('cl-pending-text').value = '';
-    $('cl-pending-wrap').style.display = 'none';
-    selectedColor = 'purple';
+  function openClassModal(dayIdx, existing){
+    editingClassId = existing ? existing.id : null;
+    $('cl-heading').textContent = existing ? 'Editar clase' : 'Nueva clase';
+    $('cl-subject').value = existing ? existing.subject : '';
+    $('cl-day').value = existing ? existing.day : dayIdx;
+    $('cl-time').value = existing ? existing.time : '08:00';
+    $('cl-has-pending').checked = existing ? existing.hasPending : false;
+    $('cl-pending-text').value = existing ? (existing.pendingText||'') : '';
+    $('cl-pending-wrap').style.display = (existing && existing.hasPending) ? 'block' : 'none';
+    selectedColor = existing ? existing.color : 'purple';
+    $('cl-delete').style.display = existing ? 'block' : 'none';
     buildSwatches();
     $('modal-clase').classList.add('active');
   }
@@ -328,10 +413,26 @@
       color: selectedColor, has_pending: $('cl-has-pending').checked,
       pending_text: $('cl-pending-text').value.trim() || null,
     };
-    const { data: row, error } = await supabase.from('schedule').insert(payload).select().single();
-    if(error){ toast('No se pudo guardar la clase'); return; }
-    data.schedule.push({ id:row.id, subject:row.subject, day:row.day, time:row.time, color:row.color, hasPending:row.has_pending, pendingText:row.pending_text });
-    closeModals(); renderCalendar(); toast('Clase agregada');
+    if(editingClassId){
+      const { data: row, error } = await supabase.from('schedule').update(payload).eq('id', editingClassId).select().single();
+      if(error){ toast('No se pudo guardar'); return; }
+      const idx = data.schedule.findIndex(x=>x.id===editingClassId);
+      if(idx>-1) data.schedule[idx] = { id:row.id, subject:row.subject, day:row.day, time:row.time, color:row.color, hasPending:row.has_pending, pendingText:row.pending_text };
+      toast('Clase actualizada');
+    } else {
+      const { data: row, error } = await supabase.from('schedule').insert(payload).select().single();
+      if(error){ toast('No se pudo guardar la clase'); return; }
+      data.schedule.push({ id:row.id, subject:row.subject, day:row.day, time:row.time, color:row.color, hasPending:row.has_pending, pendingText:row.pending_text });
+      toast('Clase agregada');
+    }
+    closeModals(); renderCalendar(); renderWidget();
+  });
+  $('cl-delete').addEventListener('click', async ()=>{
+    if(!editingClassId) return;
+    const { error } = await supabase.from('schedule').delete().eq('id', editingClassId);
+    if(error){ toast('No se pudo eliminar'); return; }
+    data.schedule = data.schedule.filter(x=>x.id!==editingClassId);
+    closeModals(); renderCalendar(); renderWidget(); toast('Clase eliminada');
   });
 
   // ============================================================
@@ -343,10 +444,7 @@
     if(currentFilter==='pending') items = items.filter(t=>!t.done);
     if(currentFilter==='done') items = items.filter(t=>t.done);
     $('tasks-count-lbl').textContent = `${data.tasks.filter(t=>!t.done).length} pendientes · ${data.tasks.filter(t=>t.done).length} hechas`;
-    if(items.length===0){
-      list.innerHTML = emptyState(ICON.checksq, 'isq-purple', 'No hay tareas aquí todavía.');
-      return;
-    }
+    if(items.length===0){ list.innerHTML = emptyState(ICON.checksq, 'isq-purple', 'No hay tareas aquí todavía.'); return; }
     list.innerHTML = '';
     items.forEach(t=>{
       const row = document.createElement('div');
@@ -356,22 +454,19 @@
       if(t.day!==null && t.day!==undefined && t.day!=='') tags += `<span class="tag">${DAYS[t.day]}</span>`;
       row.innerHTML = `
         <div class="task-check ${t.done?'done':''}" data-id="${t.id}">${t.done ? ICON.check : ''}</div>
-        <div class="task-main">
-          <div class="task-title">${escapeHtml(t.title)}</div>
-          <div class="task-tags">${tags}</div>
-        </div>
+        <div class="task-main"><div class="task-title">${escapeHtml(t.title)}</div><div class="task-tags">${tags}</div></div>
         <button class="task-del" data-id="${t.id}">${ICON.x}</button>
       `;
       row.querySelector('.task-check').addEventListener('click', async ()=>{
         const newDone = !t.done;
         const { error } = await supabase.from('tasks').update({done:newDone}).eq('id', t.id);
         if(error){ toast('No se pudo actualizar'); return; }
-        t.done = newDone; renderTasks();
+        t.done = newDone; renderTasks(); renderWidget();
       });
       row.querySelector('.task-del').addEventListener('click', async ()=>{
         const { error } = await supabase.from('tasks').delete().eq('id', t.id);
         if(error){ toast('No se pudo eliminar'); return; }
-        data.tasks = data.tasks.filter(x=>x.id!==t.id); renderTasks();
+        data.tasks = data.tasks.filter(x=>x.id!==t.id); renderTasks(); renderWidget();
       });
       list.appendChild(row);
     });
@@ -390,14 +485,13 @@
     const title = $('tk-title').value.trim();
     if(!title){ toast('Escribe el título de la tarea'); return; }
     const payload = {
-      title, done:false,
-      due_date: $('tk-date').value || null,
+      title, done:false, due_date: $('tk-date').value || null,
       day: $('tk-day').value===''? null : parseInt($('tk-day').value,10),
     };
     const { data: row, error } = await supabase.from('tasks').insert(payload).select().single();
     if(error){ toast('No se pudo guardar la tarea'); return; }
     data.tasks.unshift({ id:row.id, title:row.title, done:row.done, dueDate:row.due_date, day:row.day, createdAt:row.created_at });
-    closeModals(); renderTasks(); toast('Tarea creada');
+    closeModals(); renderTasks(); renderWidget(); toast('Tarea creada');
   });
 
   // ============================================================
@@ -406,10 +500,7 @@
   function renderNotes(){
     const grid = $('notes-grid');
     $('notes-count-lbl').textContent = `${data.notes.length} nota${data.notes.length===1?'':'s'}`;
-    if(data.notes.length===0){
-      grid.innerHTML = emptyState(ICON.edit, 'isq-pink', 'Aún no tienes notas.');
-      return;
-    }
+    if(data.notes.length===0){ grid.innerHTML = emptyState(ICON.edit, 'isq-pink', 'Aún no tienes notas.'); return; }
     grid.innerHTML = '';
     data.notes.slice().sort((a,b)=> b.createdAt.localeCompare(a.createdAt)).forEach(n=>{
       const card = document.createElement('div');
@@ -461,7 +552,7 @@
   });
 
   // ============================================================
-  // APUNTES (texto, foto o documento)
+  // APUNTES
   // ============================================================
   function iconFor(type, fileName){
     if(type==='image') return {icon: ICON.imageIc, cls:'isq-blue'};
@@ -473,10 +564,7 @@
   function renderApuntes(){
     const grid = $('apuntes-grid');
     $('apuntes-count-lbl').textContent = `${data.apuntesIndex.length} apunte${data.apuntesIndex.length===1?'':'s'}`;
-    if(data.apuntesIndex.length===0){
-      grid.innerHTML = emptyState(ICON.clip, 'isq-amber', 'Sube tu primer apunte: texto, foto o documento.');
-      return;
-    }
+    if(data.apuntesIndex.length===0){ grid.innerHTML = emptyState(ICON.clip, 'isq-amber', 'Sube tu primer apunte: texto, foto o documento.'); return; }
     grid.innerHTML = '';
     data.apuntesIndex.slice().sort((a,b)=> b.createdAt.localeCompare(a.createdAt)).forEach(a=>{
       const card = document.createElement('div');
@@ -497,9 +585,7 @@
       card.querySelector('.del-btn').addEventListener('click', async ()=>{
         if(a.type!=='text'){
           const { data: full } = await supabase.from('apuntes').select('file_path').eq('id', a.id).single();
-          if(full && full.file_path){
-            await supabase.storage.from('apuntes-files').remove([full.file_path]);
-          }
+          if(full && full.file_path) await supabase.storage.from('apuntes-files').remove([full.file_path]);
         }
         const { error } = await supabase.from('apuntes').delete().eq('id', a.id);
         if(error){ toast('No se pudo eliminar'); return; }
@@ -539,7 +625,6 @@
       body.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click', closeModals));
     }
   }
-
   $('btn-add-apunte').addEventListener('click', ()=>{
     $('ap-title-text').value=''; $('ap-content-text').value='';
     $('ap-title-file').value=''; pendingFile=null;
@@ -583,7 +668,7 @@
       const { data: row, error } = await supabase.from('apuntes').insert({ title, type:'text', content }).select('id,title,type,created_at').single();
       if(error){ toast('No se pudo guardar'); return; }
       data.apuntesIndex.unshift({ id:row.id, title:row.title, type:row.type, createdAt:row.created_at, size:content.length });
-      closeModals(); renderApuntes(); toast('Apunte guardado');
+      closeModals(); renderApuntes(); renderWidget(); toast('Apunte guardado');
     } else {
       const title = $('ap-title-file').value.trim();
       if(!title || !pendingFile){ toast('Elige un archivo y ponle título'); return; }
@@ -593,30 +678,25 @@
       if(upErr){ toast('No se pudo subir el archivo'); return; }
       const isImage = pendingFile.type.startsWith('image/');
       const { data: row, error } = await supabase.from('apuntes').insert({
-        title, type: isImage ? 'image' : 'document',
-        file_path: filePath, file_name: pendingFile.name, file_size: pendingFile.size,
+        title, type: isImage ? 'image' : 'document', file_path: filePath, file_name: pendingFile.name, file_size: pendingFile.size,
       }).select('id,title,type,file_name,file_size,created_at').single();
       if(error){ toast('No se pudo guardar'); return; }
       data.apuntesIndex.unshift({ id:row.id, title:row.title, type:row.type, fileName:row.file_name, size:row.file_size, createdAt:row.created_at });
-      closeModals(); renderApuntes(); toast('Apunte guardado');
+      closeModals(); renderApuntes(); renderWidget(); toast('Apunte guardado');
     }
   });
 
   // ============================================================
-  // GASTOS UNIVERSITARIOS
+  // GASTOS
   // ============================================================
-  function formatCOP(n){
-    return '$' + Math.round(n||0).toLocaleString('es-CO');
-  }
+  function formatCOP(n){ return '$' + Math.round(n||0).toLocaleString('es-CO'); }
   function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
 
   function renderGastos(){
     $('g-mascot-head').innerHTML = MASCOT_A;
     $('g-mascot-nobudget').innerHTML = MASCOT_B;
-
     const monthLabel = capitalize(new Date().toLocaleDateString('es-ES', {month:'long', year:'numeric'}));
     $('g-budget-month').textContent = monthLabel;
-
     const spent = data.expenses.reduce((s,e)=> s + e.amount, 0);
 
     if(data.budget){
@@ -631,23 +711,16 @@
       $('g-budget-pct').textContent = Math.round(pct) + '%';
       const remaining = data.budget.amount - spent;
       const remEl = $('g-budget-remaining');
-      if(remaining >= 0){
-        remEl.textContent = 'Te quedan ' + formatCOP(remaining);
-        remEl.className = 'ok';
-      } else {
-        remEl.textContent = 'Superaste el presupuesto por ' + formatCOP(-remaining);
-        remEl.className = 'warn';
-      }
+      if(remaining >= 0){ remEl.textContent = 'Te quedan ' + formatCOP(remaining); remEl.className = 'ok'; }
+      else { remEl.textContent = 'Superaste el presupuesto por ' + formatCOP(-remaining); remEl.className = 'warn'; }
     } else {
       $('g-budget-card').style.display = 'none';
       $('g-nobudget-card').style.display = 'block';
     }
 
-    // ---- donut chart ----
     const totals = {};
     EXP_CATEGORIES.forEach(c=> totals[c.key] = 0);
     data.expenses.forEach(e=>{ totals[e.category] = (totals[e.category]||0) + e.amount; });
-
     const r = 50, circumference = 2 * Math.PI * r;
     const segWrap = $('g-donut-segments');
     segWrap.innerHTML = '';
@@ -659,9 +732,7 @@
         const segLen = (amt / spent) * circumference;
         const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
         circle.setAttribute('cx','60'); circle.setAttribute('cy','60'); circle.setAttribute('r', r);
-        circle.setAttribute('fill','none');
-        circle.setAttribute('stroke', c.color);
-        circle.setAttribute('stroke-width','16');
+        circle.setAttribute('fill','none'); circle.setAttribute('stroke', c.color); circle.setAttribute('stroke-width','16');
         circle.setAttribute('stroke-dasharray', `${segLen} ${circumference - segLen}`);
         circle.setAttribute('stroke-dashoffset', String(-cumulative));
         circle.style.transition = 'stroke-dasharray 1s cubic-bezier(.22,1,.36,1)';
@@ -680,7 +751,8 @@
       legend.appendChild(row);
     });
 
-    // ---- expenses list ----
+    renderMonthlyBars();
+
     const list = $('g-expenses-list');
     if(data.expenses.length === 0){
       list.innerHTML = `<div class="g-empty"><div class="g-mascot" style="width:88px;height:88px;">${MASCOT_B}</div><p>Aún no registras gastos este mes.</p></div>`;
@@ -709,12 +781,30 @@
       });
     }
   }
+  function renderMonthlyBars(){
+    const wrap = $('g-bars-row');
+    if(!data.monthlyTotals || data.monthlyTotals.length===0){ wrap.innerHTML = ''; return; }
+    const max = Math.max(...data.monthlyTotals.map(m=>m.total), 1);
+    const currentKey = currentMonthKey();
+    wrap.innerHTML = '';
+    data.monthlyTotals.forEach(m=>{
+      const [y, mo] = m.key.split('-').map(Number);
+      const label = new Date(y, mo-1, 1).toLocaleDateString('es-ES', {month:'short'});
+      const heightPct = Math.max((m.total / max) * 100, m.total>0?4:2);
+      const col = document.createElement('div');
+      col.className = 'g-bar-col' + (m.key===currentKey ? ' current' : '');
+      col.innerHTML = `<div class="bar" style="height:0%;" data-h="${heightPct}"></div><div class="lbl">${label}</div>`;
+      wrap.appendChild(col);
+    });
+    requestAnimationFrame(()=>{
+      wrap.querySelectorAll('.bar').forEach(b=>{ b.style.height = b.dataset.h + '%'; });
+    });
+  }
   function formatDateLong(iso){
     const d = new Date(iso + 'T00:00:00');
     if(isNaN(d)) return '';
     return d.toLocaleDateString('es-ES', {day:'numeric', month:'short'});
   }
-
   $('btn-set-budget').addEventListener('click', openBudgetModal);
   $('btn-edit-budget').addEventListener('click', openBudgetModal);
   function openBudgetModal(){
@@ -725,13 +815,11 @@
     const amount = parseFloat($('gp-amount').value);
     if(!amount || amount <= 0){ toast('Escribe un presupuesto válido'); return; }
     const { data: row, error } = await supabase.from('budgets')
-      .upsert({ month: currentMonthKey(), amount }, { onConflict: 'user_id,month' })
-      .select().single();
+      .upsert({ month: currentMonthKey(), amount }, { onConflict: 'user_id,month' }).select().single();
     if(error){ toast('No se pudo guardar el presupuesto'); return; }
     data.budget = { id: row.id, amount: Number(row.amount) };
-    closeModals(); renderGastos(); toast('Presupuesto guardado');
+    closeModals(); renderGastos(); renderWidget(); toast('Presupuesto guardado');
   });
-
   function buildCatSelect(){
     const wrap = $('ge-cat-select');
     wrap.innerHTML = '';
@@ -746,8 +834,7 @@
   $('btn-add-gasto').addEventListener('click', ()=>{
     selectedExpCategory = 'transporte';
     buildCatSelect();
-    $('ge-amount').value = '';
-    $('ge-note').value = '';
+    $('ge-amount').value = ''; $('ge-note').value = '';
     $('ge-date').value = new Date().toISOString().slice(0,10);
     $('modal-gasto').classList.add('active');
   });
@@ -755,8 +842,7 @@
     const amount = parseFloat($('ge-amount').value);
     if(!amount || amount <= 0){ toast('Escribe un monto válido'); return; }
     const payload = {
-      category: selectedExpCategory, amount,
-      note: $('ge-note').value.trim() || null,
+      category: selectedExpCategory, amount, note: $('ge-note').value.trim() || null,
       expense_date: $('ge-date').value || new Date().toISOString().slice(0,10),
     };
     const { data: row, error } = await supabase.from('expenses').insert(payload).select().single();
@@ -766,8 +852,53 @@
       data.expenses.unshift({ id:row.id, category:row.category, amount:Number(row.amount), note:row.note, date:row.expense_date, createdAt:row.created_at });
       data.expenses.sort((a,b)=> b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
     }
-    closeModals(); renderGastos(); toast('Gasto agregado');
+    await fetchMonthlyTotals();
+    closeModals(); renderGastos(); renderWidget(); toast('Gasto agregado');
   });
+
+  // ============================================================
+  // NOTIFICACIONES (mientras la app está abierta)
+  // ============================================================
+  $('btn-notifications').addEventListener('click', async ()=>{
+    if(!('Notification' in window)){ toast('Tu navegador no soporta notificaciones'); return; }
+    const perm = await Notification.requestPermission();
+    if(perm === 'granted'){
+      toast('Notificaciones activadas');
+      new Notification('Bravonotes', { body:'Te avisaremos de tus clases y tareas mientras tengas la app abierta.', icon:'icons/icon-192.png' });
+    } else {
+      toast('No se activaron las notificaciones');
+    }
+    $('user-sheet').classList.remove('active');
+  });
+  function startNotificationChecker(){
+    checkNotifications();
+    setInterval(checkNotifications, 30000);
+  }
+  function checkNotifications(){
+    if(!('Notification' in window) || Notification.permission !== 'granted') return;
+    const now = new Date();
+    const todayIdx = (now.getDay()+6)%7;
+    const todayStr = now.toISOString().slice(0,10);
+
+    data.schedule.filter(c=>c.day===todayIdx).forEach(c=>{
+      const [h,m] = c.time.split(':').map(Number);
+      const classTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
+      const diffMin = (classTime - now) / 60000;
+      const key = 'class-' + c.id + '-' + todayStr;
+      if(diffMin > 0 && diffMin <= 10 && !notifiedIds.has(key)){
+        notifiedIds.add(key);
+        new Notification('Clase en 10 minutos', { body: c.subject + ' a las ' + c.time, icon:'icons/icon-192.png' });
+      }
+    });
+
+    data.tasks.filter(t=>!t.done && t.dueDate===todayStr).forEach(t=>{
+      const key = 'task-' + t.id + '-' + todayStr;
+      if(!notifiedIds.has(key)){
+        notifiedIds.add(key);
+        new Notification('Tarea pendiente para hoy', { body: t.title, icon:'icons/icon-192.png' });
+      }
+    });
+  }
 
   // ---------- helpers ----------
   function escapeHtml(str){
@@ -787,17 +918,16 @@
   function emptyState(icon, cls, text){
     return `<div class="empty-state" style="grid-column:1/-1;"><div class="icon-sq ${cls}">${icon}</div><p>${text}</p></div>`;
   }
-  function renderAll(){ renderCalendar(); renderTasks(); renderNotes(); renderApuntes(); renderGastos(); }
+  function renderAll(){ renderCalendar(); renderTasks(); renderNotes(); renderApuntes(); renderGastos(); renderWidget(); }
 
   init();
 
   if('serviceWorker' in navigator){
     window.addEventListener('load', ()=>{
-      navigator.serviceWorker.register('/sw.js').catch(()=>{});
+      navigator.serviceWorker.register('sw.js').catch(()=>{});
     });
   }
 
-  // ---------- Bloqueo extra de zoom (iOS a veces ignora el <meta viewport>) ----------
   document.addEventListener('gesturestart', (e)=> e.preventDefault());
   document.addEventListener('gesturechange', (e)=> e.preventDefault());
   document.addEventListener('touchmove', (e)=>{

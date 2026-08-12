@@ -1,7 +1,8 @@
 // ============================================================
 // Configuración de Supabase
 // ------------------------------------------------------------
-// Reemplaza estos dos valores con los de TU proyecto de Supabase:
+// IMPORTANTE: reemplaza estos dos valores con los de TU proyecto,
+// los mismos que ya tenías configurados (no los borres).
 // Project Settings → API → Project URL / anon public key
 // ============================================================
 window.SUPABASE_URL = "https://xqtydehareriztdpeooz.supabase.co";

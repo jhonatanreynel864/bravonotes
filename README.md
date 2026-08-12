@@ -1,110 +1,44 @@
 # Bravonotes
 
-Dashboard para estudiantes: login con Google, calendario de clases, tareas, notas y apuntes (texto, fotos o documentos). Ahora usa **Supabase** como backend (login, base de datos y almacenamiento de archivos) y se despliega en **Vercel**.
+## Qué hay nuevo en esta actualización
 
-## Estructura del proyecto
+1. **Editar clases**: toca cualquier clase ya creada (no solo la ✕) para abrir el formulario con sus datos y modificarla, o eliminarla desde ahí mismo.
+2. **Widget "Tu resumen de hoy"**: arriba del todo en Agenda. Toca el ícono de engranaje para elegir qué quieres ver ahí (clases de hoy, tareas pendientes, resumen de gastos, o apuntes recientes).
+3. **Comparativa mensual de gastos**: gráfico de barras en la sección de Gastos, con los últimos 6 meses.
+4. **Notificaciones**: activables desde tu foto de perfil (arriba a la derecha) → "Activar notificaciones". Lee la sección de abajo, porque tienen una limitación importante que debes conocer.
 
-```
-bravonotes-app/
-├── index.html          ← estructura y estilos (glassmorfismo morado)
-├── app.js              ← toda la lógica de la app (auth, calendario, tareas, notas, apuntes)
-├── config.js           ← aquí van tus credenciales de Supabase
-└── supabase/
-    └── schema.sql       ← script para crear las tablas y permisos en Supabase
-```
+## Paso extra en Supabase (antes de usar el widget)
 
----
+El widget necesita una tabla nueva para recordar tu elección:
 
-## Paso 1 — Crear el proyecto en Supabase
+1. Ve a Supabase → **SQL Editor** → **New query**.
+2. Copia y pega el contenido de `supabase/schema_widget.sql`.
+3. Dale **Run**.
 
-1. Entra a https://supabase.com y crea una cuenta (gratis).
-2. Clic en **New project**. Ponle un nombre (ej. `bravonotes`) y una contraseña de base de datos (guárdala, no la necesitarás casi nunca).
-3. Espera 1-2 minutos a que se cree.
+(Los otros dos archivos SQL de la carpeta `supabase/` son los mismos que ya corriste antes — los dejé ahí solo de referencia, no hace falta correrlos de nuevo.)
 
-## Paso 2 — Crear las tablas
+## Sobre las notificaciones — léelo antes de confiar en ellas
 
-1. En el menú lateral, ve a **SQL Editor**.
-2. Abre el archivo `supabase/schema.sql` de este proyecto, copia todo su contenido y pégalo en el editor.
-3. Dale a **Run**. Esto crea las tablas `schedule`, `tasks`, `notes`, `apuntes`, activa la seguridad por usuario (RLS) y crea el bucket privado `apuntes-files` para fotos y documentos.
+Implementé la versión que se puede hacer **sin backend adicional**: mientras tienes Bravonotes abierta (en primer o segundo plano reciente), la app revisa cada 30 segundos si tienes una clase en los próximos 10 minutos o una tarea que vence hoy, y te muestra una notificación nativa del sistema.
 
-## Paso 3 — Activar el login con Google
+**La limitación real**: en iPhone, si cierras la app completamente (la deslizas para cerrarla) o pasa mucho rato en segundo plano, iOS "duerme" la página y las notificaciones dejan de dispararse — no es una limitación mía, es como funciona Safari en iOS. Para que de verdad te avisen con el teléfono bloqueado o la app cerrada, se necesita **notificaciones push reales**, que requieren:
 
-1. En Supabase, ve a **Authentication → Providers → Google** y actívalo.
-2. Necesitas un **Client ID** y **Client Secret** de Google. Para conseguirlos:
-   - Ve a https://console.cloud.google.com/apis/credentials
-   - Crea un proyecto (o usa uno existente).
-   - **Create credentials → OAuth client ID → Web application**.
-   - En **Authorized redirect URIs** pega la URL que Supabase te muestra en esa misma pantalla (algo como `https://TU-PROYECTO.supabase.co/auth/v1/callback`).
-   - Copia el Client ID y Client Secret que Google te da, y pégalos en Supabase.
-3. Guarda los cambios en Supabase.
-4. En **Authentication → URL Configuration**, agrega la URL donde vas a probar la app (por ejemplo `http://localhost:5500` mientras pruebas en VS Code, y luego la URL de Vercel cuando la publiques) en **Redirect URLs**.
+- Un servidor que mande el aviso en el momento exacto (no puede hacerlo tu celular si la app está cerrada).
+- Llaves de seguridad especiales (VAPID) y una función que revise la base de datos cada minuto.
 
-## Paso 4 — Conectar tu app con tu proyecto de Supabase
+Es una funcionalidad real y se puede hacer, pero es un proyecto aparte con más piezas técnicas (un servicio externo gratuito tipo cron-job.org, o Supabase Edge Functions). Si te interesa que lo armemos, dímelo y seguimos desde ahí — no quise mezclarlo con esta entrega para no dejarte algo a medias sin que lo supieras.
 
-1. En Supabase, ve a **Project Settings → API**.
-2. Copia el **Project URL** y la **anon public key**.
-3. Abre `config.js` en este proyecto y reemplaza los valores:
+## Cómo aplicar esta actualización
 
-```js
-window.SUPABASE_URL = "https://TU-PROYECTO.supabase.co";
-window.SUPABASE_ANON_KEY = "tu-anon-key-aqui";
-```
-
-Esta anon key es pública y segura de exponer en el frontend — la seguridad real la dan las políticas de RLS que ya quedaron activas en el Paso 2.
-
-## Paso 5 — Probarlo en VS Code
-
-1. Abre la carpeta `bravonotes-app` en VS Code.
-2. Instala la extensión **Live Server**.
-3. Clic derecho en `index.html` → **Open with Live Server**.
-4. Debería aparecer el botón "Continuar con Google" y, al iniciar sesión, entrar directo al dashboard.
-
-> Importante: agrega la URL que te dé Live Server (ej. `http://127.0.0.1:5500`) a **Redirect URLs** en Supabase (Paso 3.4), o el login redirigirá pero no te dejará entrar.
-
-## Paso 6 — Subir el proyecto a GitHub
-
-1. Crea un repositorio nuevo en https://github.com/new
-2. Desde la carpeta del proyecto en tu computador:
+1. Reemplaza `index.html` y `app.js` en tu proyecto por los que vienen en este zip.
+2. **No toques** `config.js` (ya tiene tus llaves de Supabase) — el que viene aquí es solo un ejemplo en blanco.
+3. Corre el SQL nuevo (ver arriba).
+4. Sube los cambios:
 
 ```bash
-git init
 git add .
-git commit -m "Bravonotes con Supabase"
-git branch -M main
-git remote add origin https://github.com/TU-USUARIO/bravonotes.git
-git push -u origin main
+git commit -m "Editar clases, widget de inicio, comparativa mensual y notificaciones"
+git push
 ```
 
-## Paso 7 — Desplegar en Vercel
-
-1. Entra a https://vercel.com y crea una cuenta con GitHub.
-2. **Add New → Project** y elige el repositorio `bravonotes`.
-3. Como es HTML/CSS/JS puro, Vercel no necesita configuración de build — déjalo por defecto y dale **Deploy**.
-4. Cuando termine, te da una URL como `https://bravonotes.vercel.app`.
-5. Copia esa URL y agrégala en Supabase → **Authentication → URL Configuration → Redirect URLs**, para que el login con Google funcione también en producción.
-
-¡Listo! Ya tienes Bravonotes con login real de Google, base de datos y almacenamiento de archivos, publicado en la web.
-
-## Agregarla a la pantalla de inicio del celular (como app nativa)
-
-Bravonotes ya está preparada como **PWA** (Progressive Web App), con su propio ícono, así que se puede "instalar" desde el navegador sin pasar por ninguna tienda de aplicaciones.
-
-**En Android (Chrome):**
-1. Abre tu link de Bravonotes (el de Vercel o tu dominio propio).
-2. Te debería aparecer solo un banner abajo diciendo "Agregar Bravonotes a la pantalla de inicio" — dale **Instalar**.
-3. Si no aparece solo, abre el menú (los tres puntos, arriba a la derecha) → **"Agregar a pantalla de inicio"** o **"Instalar app"**.
-
-**En iPhone (Safari):**
-1. Abre tu link de Bravonotes en Safari (tiene que ser Safari, no funciona igual desde Chrome en iPhone).
-2. Toca el botón de compartir (el cuadrado con la flecha hacia arriba).
-3. Baja y toca **"Agregar a inicio"** ("Add to Home Screen").
-4. Confirma el nombre y toca **"Agregar"**.
-
-En ambos casos te va a quedar un ícono morado con el logo de Bravonotes en tu pantalla de inicio, y al abrirlo se ve a pantalla completa, sin la barra del navegador — se siente como una app nativa.
-
-> Nota técnica: los archivos `manifest.json`, `sw.js` y la carpeta `icons/` ya están en el proyecto — no necesitas hacer nada más, solo que estén subidos junto con el resto del código a Vercel (con `git add . / commit / push` como ya hiciste antes, Vercel los vuelve a desplegar solo).
-
-## Notas
-
-- Los archivos (fotos/documentos) se guardan en un bucket privado de Supabase Storage; cada quien solo puede ver los suyos.
-- Si algo no carga después de desplegar, revisa la consola del navegador (F12) — casi siempre es una URL de redirect que falta agregar en Supabase.
+5. Como siempre: borra la app de tu pantalla de inicio y vuelve a agregarla después de que Vercel termine de desplegar.
