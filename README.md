@@ -1,44 +1,85 @@
-# Bravonotes
+# Bravonotes — Notificaciones push reales
 
-## Qué hay nuevo en esta actualización
+Esta actualización agrega notificaciones que llegan **aunque tengas el celular bloqueado o la app cerrada**. Requiere configurar unas piezas nuevas — sigue los pasos en orden.
 
-1. **Editar clases**: toca cualquier clase ya creada (no solo la ✕) para abrir el formulario con sus datos y modificarla, o eliminarla desde ahí mismo.
-2. **Widget "Tu resumen de hoy"**: arriba del todo en Agenda. Toca el ícono de engranaje para elegir qué quieres ver ahí (clases de hoy, tareas pendientes, resumen de gastos, o apuntes recientes).
-3. **Comparativa mensual de gastos**: gráfico de barras en la sección de Gastos, con los últimos 6 meses.
-4. **Notificaciones**: activables desde tu foto de perfil (arriba a la derecha) → "Activar notificaciones". Lee la sección de abajo, porque tienen una limitación importante que debes conocer.
+## Tus llaves (ya generadas, cópialas de aquí)
 
-## Paso extra en Supabase (antes de usar el widget)
+```
+VAPID_PUBLIC_KEY  = BKTXa479LuQWkC30DqAn7mbTefHLjqs4bA0fvNdxk13fgvz_hOptRJjrddsYl8lMrcZ0P7EdmYCnWi8DKGQeWCQ
+VAPID_PRIVATE_KEY = t2G_joLAszySa5pBMlleg8YJ18igmPpO0ttP73Zf_Kw
+CRON_SECRET       = 5c08d7d02faab0daedb9d7a3b6cc48744d9e6f22ba995bab
+```
 
-El widget necesita una tabla nueva para recordar tu elección:
+Guárdalas en algún lado (una nota o gestor de contraseñas) — las vas a necesitar en el Paso 3.
 
-1. Ve a Supabase → **SQL Editor** → **New query**.
-2. Copia y pega el contenido de `supabase/schema_widget.sql`.
-3. Dale **Run**.
+---
 
-(Los otros dos archivos SQL de la carpeta `supabase/` son los mismos que ya corriste antes — los dejé ahí solo de referencia, no hace falta correrlos de nuevo.)
+## Paso 1 — Correr el SQL nuevo en Supabase
 
-## Sobre las notificaciones — léelo antes de confiar en ellas
+1. Supabase → **SQL Editor** → **New query**.
+2. Copia y pega el contenido de `supabase/schema_push.sql`.
+3. **Run**.
 
-Implementé la versión que se puede hacer **sin backend adicional**: mientras tienes Bravonotes abierta (en primer o segundo plano reciente), la app revisa cada 30 segundos si tienes una clase en los próximos 10 minutos o una tarea que vence hoy, y te muestra una notificación nativa del sistema.
+## Paso 2 — Conseguir tu Service Role Key
 
-**La limitación real**: en iPhone, si cierras la app completamente (la deslizas para cerrarla) o pasa mucho rato en segundo plano, iOS "duerme" la página y las notificaciones dejan de dispararse — no es una limitación mía, es como funciona Safari en iOS. Para que de verdad te avisen con el teléfono bloqueado o la app cerrada, se necesita **notificaciones push reales**, que requieren:
+Esta es distinta a la "anon key" que ya tienes en `config.js` — esta es secreta y **nunca va en el código**, solo en la configuración del servidor.
 
-- Un servidor que mande el aviso en el momento exacto (no puede hacerlo tu celular si la app está cerrada).
-- Llaves de seguridad especiales (VAPID) y una función que revise la base de datos cada minuto.
+1. Supabase → **Project Settings → API**.
+2. Busca la sección **"service_role"** (dice "secret", con un botón "Reveal").
+3. Cópiala.
 
-Es una funcionalidad real y se puede hacer, pero es un proyecto aparte con más piezas técnicas (un servicio externo gratuito tipo cron-job.org, o Supabase Edge Functions). Si te interesa que lo armemos, dímelo y seguimos desde ahí — no quise mezclarlo con esta entrega para no dejarte algo a medias sin que lo supieras.
+## Paso 3 — Configurar las variables de entorno en Vercel
 
-## Cómo aplicar esta actualización
+1. En tu proyecto de Vercel → **Settings → Environment Variables**.
+2. Agrega estas 5, una por una (Name / Value), dejando marcado el entorno por defecto (Production, Preview, Development):
 
-1. Reemplaza `index.html` y `app.js` en tu proyecto por los que vienen en este zip.
-2. **No toques** `config.js` (ya tiene tus llaves de Supabase) — el que viene aquí es solo un ejemplo en blanco.
-3. Corre el SQL nuevo (ver arriba).
-4. Sube los cambios:
+| Name | Value |
+|---|---|
+| `SUPABASE_URL` | La misma URL que usas en `config.js` (`https://xxxxx.supabase.co`) |
+| `SUPABASE_SERVICE_ROLE_KEY` | La que copiaste en el Paso 2 |
+| `VAPID_PUBLIC_KEY` | `BKTXa479LuQWkC30DqAn7mbTefHLjqs4bA0fvNdxk13fgvz_hOptRJjrddsYl8lMrcZ0P7EdmYCnWi8DKGQeWCQ` |
+| `VAPID_PRIVATE_KEY` | `t2G_joLAszySa5pBMlleg8YJ18igmPpO0ttP73Zf_Kw` |
+| `CRON_SECRET` | `5c08d7d02faab0daedb9d7a3b6cc48744d9e6f22ba995bab` |
+
+3. Guarda cada una.
+
+## Paso 4 — Subir el código
+
+Este es el mismo de siempre, pero esta vez importa porque Vercel necesita ver la carpeta `api/` y el `package.json` nuevo para crear la función del servidor:
 
 ```bash
 git add .
-git commit -m "Editar clases, widget de inicio, comparativa mensual y notificaciones"
+git commit -m "Agregar notificaciones push reales"
 git push
 ```
 
-5. Como siempre: borra la app de tu pantalla de inicio y vuelve a agregarla después de que Vercel termine de desplegar.
+Espera a que el deploy en Vercel diga "Ready".
+
+## Paso 5 — Activar el "cron" que dispara la función cada minuto
+
+Sin este paso, la función existe pero nadie la llama, y nunca se manda ningún aviso.
+
+1. Ve a **https://cron-job.org** y crea una cuenta gratis.
+2. **Create cronjob**.
+3. En **URL**, pon (reemplaza `bravonotes` si tu dominio es distinto):
+   ```
+   https://bravonotes.vercel.app/api/check-notifications?secret=5c08d7d02faab0daedb9d7a3b6cc48744d9e6f22ba995bab
+   ```
+4. En la frecuencia, elige que se ejecute **cada 1 minuto** (o el intervalo más corto que te deje el plan gratis).
+5. Guarda y actívalo.
+
+## Paso 6 — Probarlo
+
+1. Abre Bravonotes en tu celular (agregada a la pantalla de inicio).
+2. Toca tu foto de perfil → **"Activar notificaciones"** → acepta el permiso que te pida el sistema.
+3. Crea una **tarea con fecha de hoy**.
+4. Espera hasta 1 minuto (lo que tarde el cron en volver a ejecutarse) — te debería llegar la notificación **aunque hayas cerrado la app o bloqueado el celular**.
+5. Para probar la de clases: crea una clase para el día de hoy, con la hora puesta a menos de 10 minutos en el futuro.
+
+Si después de un par de minutos no te llega nada, dime y revisamos juntos — lo más común en estos casos es una variable de entorno mal copiada o el cron mal configurado.
+
+---
+
+## Resto del proyecto (sin cambios)
+
+Las otras funciones (editar clases, widget de inicio, comparativa mensual de gastos) siguen igual que en la entrega anterior. El resto de archivos SQL en `supabase/` ya los corriste antes, no hace falta repetirlos.

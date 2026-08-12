@@ -56,7 +56,6 @@
   let editingClassId = null;
   let pendingFile = null;
   let selectedExpCategory = 'transporte';
-  let notifiedIds = new Set();
 
   const $ = (id) => document.getElementById(id);
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2,10) + Date.now().toString(36));
@@ -155,7 +154,7 @@
 
     await fetchAll();
     renderAll();
-    startNotificationChecker();
+    updateNotifBtnLabel();
   }
   $('btn-avatar').addEventListener('click', ()=> $('user-sheet').classList.add('active'));
   $('user-sheet').querySelector('.scrim').addEventListener('click', ()=> $('user-sheet').classList.remove('active'));
@@ -857,48 +856,61 @@
   });
 
   // ============================================================
-  // NOTIFICACIONES (mientras la app está abierta)
+  // NOTIFICACIONES PUSH REALES
   // ============================================================
+  function urlBase64ToUint8Array(base64String){
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    return Uint8Array.from([...rawData].map(c=>c.charCodeAt(0)));
+  }
+
+  async function updateNotifBtnLabel(){
+    const btn = $('btn-notifications');
+    if(!('serviceWorker' in navigator) || !('PushManager' in window)){
+      btn.querySelector('span:last-child')?.remove();
+      btn.innerHTML = `<span data-icon="bell"></span> No disponible en este navegador`;
+      btn.disabled = true;
+      return;
+    }
+    try{
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      const label = sub ? 'Notificaciones activadas ✓' : 'Activar notificaciones';
+      btn.innerHTML = `<span data-icon="bell"></span> ${label}`;
+    }catch(e){}
+  }
+
   $('btn-notifications').addEventListener('click', async ()=>{
-    if(!('Notification' in window)){ toast('Tu navegador no soporta notificaciones'); return; }
+    if(!('serviceWorker' in navigator) || !('PushManager' in window)){
+      toast('Tu navegador no soporta notificaciones push'); return;
+    }
+    if(!window.VAPID_PUBLIC_KEY || window.VAPID_PUBLIC_KEY.includes('TU-')){
+      toast('Falta configurar la llave VAPID'); return;
+    }
     const perm = await Notification.requestPermission();
-    if(perm === 'granted'){
+    if(perm !== 'granted'){ toast('No se activaron las notificaciones'); return; }
+    try{
+      const reg = await navigator.serviceWorker.ready;
+      let sub = await reg.pushManager.getSubscription();
+      if(!sub){
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(window.VAPID_PUBLIC_KEY),
+        });
+      }
+      const json = sub.toJSON();
+      const { error } = await supabase.from('push_subscriptions').upsert({
+        endpoint: json.endpoint, p256dh: json.keys.p256dh, auth: json.keys.auth,
+      }, { onConflict:'endpoint' });
+      if(error){ toast('No se pudo guardar la suscripción'); return; }
       toast('Notificaciones activadas');
-      new Notification('Bravonotes', { body:'Te avisaremos de tus clases y tareas mientras tengas la app abierta.', icon:'icons/icon-192.png' });
-    } else {
-      toast('No se activaron las notificaciones');
+      updateNotifBtnLabel();
+    }catch(e){
+      toast('No se pudo activar: ' + e.message);
     }
     $('user-sheet').classList.remove('active');
   });
-  function startNotificationChecker(){
-    checkNotifications();
-    setInterval(checkNotifications, 30000);
-  }
-  function checkNotifications(){
-    if(!('Notification' in window) || Notification.permission !== 'granted') return;
-    const now = new Date();
-    const todayIdx = (now.getDay()+6)%7;
-    const todayStr = now.toISOString().slice(0,10);
-
-    data.schedule.filter(c=>c.day===todayIdx).forEach(c=>{
-      const [h,m] = c.time.split(':').map(Number);
-      const classTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m);
-      const diffMin = (classTime - now) / 60000;
-      const key = 'class-' + c.id + '-' + todayStr;
-      if(diffMin > 0 && diffMin <= 10 && !notifiedIds.has(key)){
-        notifiedIds.add(key);
-        new Notification('Clase en 10 minutos', { body: c.subject + ' a las ' + c.time, icon:'icons/icon-192.png' });
-      }
-    });
-
-    data.tasks.filter(t=>!t.done && t.dueDate===todayStr).forEach(t=>{
-      const key = 'task-' + t.id + '-' + todayStr;
-      if(!notifiedIds.has(key)){
-        notifiedIds.add(key);
-        new Notification('Tarea pendiente para hoy', { body: t.title, icon:'icons/icon-192.png' });
-      }
-    });
-  }
 
   // ---------- helpers ----------
   function escapeHtml(str){
