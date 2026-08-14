@@ -241,7 +241,7 @@
     const now = new Date();
     const monthsBack = 5;
     const from = new Date(now.getFullYear(), now.getMonth()-monthsBack, 1);
-    const fromStr = from.toISOString().slice(0,10);
+    const fromStr = localDateStr(from);
     const { data: rows, error } = await supabase.from('expenses').select('amount,expense_date').gte('expense_date', fromStr);
     const totals = {};
     for(let i=monthsBack;i>=0;i--){
@@ -267,7 +267,7 @@
   async function fetchStreak(){
     try{
       const since = new Date(); since.setDate(since.getDate()-90);
-      const { data: rows } = await supabase.from('streak_log').select('activity_date').gte('activity_date', since.toISOString().slice(0,10));
+      const { data: rows } = await supabase.from('streak_log').select('activity_date').gte('activity_date', localDateStr(since));
       data.streakDates = (rows||[]).map(r=>r.activity_date);
     }catch(e){ data.streakDates = []; }
   }
@@ -275,10 +275,10 @@
     const set = new Set(data.streakDates);
     const today = new Date();
     let checkDate = new Date(today);
-    const todayStr = checkDate.toISOString().slice(0,10);
+    const todayStr = localDateStr(checkDate);
     if(!set.has(todayStr)) checkDate.setDate(checkDate.getDate()-1);
     let streak = 0;
-    while(set.has(checkDate.toISOString().slice(0,10))){
+    while(set.has(localDateStr(checkDate))){
       streak++;
       checkDate.setDate(checkDate.getDate()-1);
     }
@@ -476,7 +476,7 @@
     }
   }
   async function logStreakToday(){
-    const todayStr = new Date().toISOString().slice(0,10);
+    const todayStr = localDateStr();
     if(!data.streakDates.includes(todayStr)){
       try{
         await supabase.from('streak_log').upsert({ activity_date: todayStr }, { onConflict:'user_id,activity_date' });
@@ -670,6 +670,29 @@
       grid.appendChild(card);
     });
   }
+  let fullscreenZoomOpen = false;
+  function openFullscreenImage(url, filename){
+    fullscreenZoomOpen = true;
+    const viewportMeta = document.querySelector('meta[name="viewport"]');
+    const originalViewport = viewportMeta ? viewportMeta.getAttribute('content') : null;
+    if(viewportMeta) viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover');
+    const wrap = document.createElement('div');
+    wrap.id = 'img-fullscreen';
+    wrap.style.cssText = 'position:fixed;inset:0;z-index:200;background:rgba(10,5,20,.94);display:flex;align-items:center;justify-content:center;touch-action:pinch-zoom pan-x pan-y;overscroll-behavior:contain;';
+    wrap.innerHTML = `
+      <img src="${url}" style="max-width:100%;max-height:100%;touch-action:pinch-zoom pan-x pan-y;">
+      <button id="img-fullscreen-close" style="position:fixed;top:calc(16px + env(safe-area-inset-top));right:16px;width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;">${ICON.x}</button>
+    `;
+    document.body.appendChild(wrap);
+    function close(){
+      fullscreenZoomOpen = false;
+      if(viewportMeta && originalViewport) viewportMeta.setAttribute('content', originalViewport);
+      wrap.remove();
+    }
+    wrap.addEventListener('click', (e)=>{ if(e.target===wrap) close(); });
+    $('img-fullscreen-close').addEventListener('click', close);
+  }
+
   async function viewApunte(a){
     const body = $('modal-view-body');
     body.innerHTML = `<h2>${escapeHtml(a.title)}</h2><p style="color:var(--ink-mute);">Cargando…</p>`;
@@ -687,10 +710,20 @@
         if(signErr) throw signErr;
         const url = signed.signedUrl;
         if(a.type==='image'){
-          body.innerHTML = `<h2>${escapeHtml(a.title)}</h2><img src="${url}" style="width:100%;border-radius:14px;max-height:55vh;object-fit:contain;background:var(--p-50);">
+          body.innerHTML = `<h2>${escapeHtml(a.title)}</h2>
+            <img src="${url}" id="apunte-img-preview" style="width:100%;border-radius:14px;max-height:65vh;object-fit:contain;background:var(--p-50);cursor:zoom-in;">
+            <p style="text-align:center;font-size:11.5px;color:var(--ink-mute);margin:8px 0 0;">Toca la imagen para verla más grande y hacer zoom</p>
             <div class="modal-actions"><a class="btn btn-ghost" href="${url}" download="${escapeHtml(row.file_name||a.title)}">${ICON.download} Descargar</a><button class="btn btn-dark" data-close>Cerrar</button></div>`;
+          $('apunte-img-preview').addEventListener('click', ()=> openFullscreenImage(url, row.file_name||a.title));
         } else {
-          body.innerHTML = `<h2>${escapeHtml(a.title)}</h2><p style="color:var(--ink-mute);font-size:13.5px;">${escapeHtml(row.file_name||'documento')}</p>
+          const ext = (row.file_name||'').split('.').pop().toUpperCase();
+          body.innerHTML = `<h2>${escapeHtml(a.title)}</h2>
+            <div style="background:var(--p-50);border-radius:16px;padding:40px 20px;text-align:center;margin-bottom:6px;">
+              <div style="width:64px;height:64px;border-radius:18px;background:#fff;color:var(--p-700);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:var(--glass-shadow);">
+                <span style="font-size:14px;font-weight:800;">${escapeHtml(ext||'DOC')}</span>
+              </div>
+              <p style="color:var(--ink-soft);font-size:14px;font-weight:600;word-break:break-word;margin:0;">${escapeHtml(row.file_name||'documento')}</p>
+            </div>
             <div class="modal-actions"><a class="btn btn-dark" href="${url}" download="${escapeHtml(row.file_name||a.title)}">${ICON.download} Descargar archivo</a></div>`;
         }
       }
@@ -748,9 +781,16 @@
       const title = $('ap-title-file').value.trim();
       if(!title || !pendingFile){ toast('Elige un archivo y ponle título'); return; }
       const { data: { user } } = await supabase.auth.getUser();
-      const filePath = `${user.id}/${uid()}-${pendingFile.name}`;
-      const { error: upErr } = await supabase.storage.from('apuntes-files').upload(filePath, pendingFile);
-      if(upErr){ toast('No se pudo subir el archivo'); return; }
+      const safeName = pendingFile.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+      const filePath = `${user.id}/${uid()}-${safeName}`;
+      const { error: upErr } = await supabase.storage.from('apuntes-files').upload(filePath, pendingFile, {
+        contentType: pendingFile.type || 'application/octet-stream',
+      });
+      if(upErr){
+        console.error('Error subiendo archivo:', upErr);
+        toast('No se pudo subir: ' + (upErr.message || 'error desconocido'));
+        return;
+      }
       const isImage = pendingFile.type.startsWith('image/');
       const { data: row, error } = await supabase.from('apuntes').insert({
         title, type: isImage ? 'image' : 'document', file_path: filePath, file_name: pendingFile.name, file_size: pendingFile.size,
@@ -910,7 +950,7 @@
     selectedExpCategory = 'transporte';
     buildCatSelect();
     $('ge-amount').value = ''; $('ge-note').value = '';
-    $('ge-date').value = new Date().toISOString().slice(0,10);
+    $('ge-date').value = localDateStr();
     $('modal-gasto').classList.add('active');
   });
   $('ge-save').addEventListener('click', async ()=>{
@@ -918,7 +958,7 @@
     if(!amount || amount <= 0){ toast('Escribe un monto válido'); return; }
     const payload = {
       category: selectedExpCategory, amount, note: $('ge-note').value.trim() || null,
-      expense_date: $('ge-date').value || new Date().toISOString().slice(0,10),
+      expense_date: $('ge-date').value || localDateStr(),
     };
     const { data: row, error } = await supabase.from('expenses').insert(payload).select().single();
     if(error){ toast('No se pudo guardar el gasto'); return; }
@@ -989,6 +1029,13 @@
   });
 
   // ---------- helpers ----------
+  function localDateStr(d){
+    d = d || new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }
   function escapeHtml(str){
     return String(str||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   }
@@ -1016,13 +1063,15 @@
     });
   }
 
-  document.addEventListener('gesturestart', (e)=> e.preventDefault());
-  document.addEventListener('gesturechange', (e)=> e.preventDefault());
+  document.addEventListener('gesturestart', (e)=>{ if(!fullscreenZoomOpen) e.preventDefault(); });
+  document.addEventListener('gesturechange', (e)=>{ if(!fullscreenZoomOpen) e.preventDefault(); });
   document.addEventListener('touchmove', (e)=>{
+    if(fullscreenZoomOpen) return;
     if(e.touches && e.touches.length > 1) e.preventDefault();
   }, { passive:false });
   let lastTouchEnd = 0;
   document.addEventListener('touchend', (e)=>{
+    if(fullscreenZoomOpen) return;
     const now = Date.now();
     if(now - lastTouchEnd <= 300) e.preventDefault();
     lastTouchEnd = now;
