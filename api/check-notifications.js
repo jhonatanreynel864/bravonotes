@@ -110,5 +110,19 @@ module.exports = async (req, res) => {
     }
   }
 
+  // ---------- Buenos días, todos los días a las 6:00 a.m. ----------
+  if (hour === 6 && minute < 5) {
+    const { data: allSubs } = await supabase.from('push_subscriptions').select('user_id');
+    const uniqueUserIds = [...new Set((allSubs || []).map(s => s.user_id))];
+    for (const uid of uniqueUserIds) {
+      const already = await alreadyNotified('buenosdias', uid);
+      if (!already) {
+        await sendToUser(uid, 'Buenos días ☀️', 'Que tengas un excelente día');
+        await markNotified(uid, 'buenosdias', uid);
+        results.buenosdias = (results.buenosdias || 0) + 1;
+      }
+    }
+  }
+
   res.status(200).json({ ok: true, ...results, checkedAt: `${todayStr} ${hour}:${String(minute).padStart(2,'0')}` });
 };

@@ -49,7 +49,7 @@
   }
   const supabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
-  let data = { user:null, schedule:[], tasks:[], notes:[], apuntesIndex:[], expenses:[], budget:null, monthlyTotals:[], widget:'clases' };
+  let data = { user:null, schedule:[], tasks:[], notes:[], apuntesIndex:[], expenses:[], budget:null, monthlyTotals:[], widget:'clases', streakEnabled:false, streakDates:[] };
   let currentFilter = 'all';
   let selectedColor = 'purple';
   let editingNoteId = null;
@@ -86,6 +86,7 @@
     google: '<svg viewBox="0 0 24 24" width="19" height="19"><path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.28 1.48-1.13 2.73-2.4 3.58v2.98h3.88c2.27-2.09 3.54-5.17 3.54-8.8z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.07 7.93-2.91l-3.88-2.98c-1.07.72-2.45 1.16-4.05 1.16-3.12 0-5.76-2.11-6.71-4.94H1.28v3.09C3.25 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.29 14.33A7.19 7.19 0 0 1 4.91 12c0-.81.14-1.6.38-2.33V6.58H1.28A11.98 11.98 0 0 0 0 12c0 1.93.46 3.76 1.28 5.42l4.01-3.09z"/><path fill="#EA4335" d="M12 4.77c1.76 0 3.34.61 4.58 1.79l3.44-3.44C17.94 1.19 15.24 0 12 0 7.31 0 3.25 2.7 1.28 6.58l4.01 3.09C6.24 6.84 8.88 4.77 12 4.77z"/></svg>',
     settings: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
     bell: '<svg class="icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
+    flame: '<svg class="icon" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 17a2.5 2.5 0 0 0 2.5-2.5c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7.5 7.5 0 1 1-15 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',
   };
   ICON.calendarSm = ICON.calendar;
   document.querySelectorAll('[data-icon]').forEach(el=>{
@@ -155,6 +156,8 @@
     await fetchAll();
     renderAll();
     updateNotifBtnLabel();
+    $('btn-streak').innerHTML = `<span data-icon="flame"></span> ${data.streakEnabled ? 'Desactivar racha' : 'Activar racha'}`;
+    document.querySelectorAll('[data-icon="flame"]').forEach(el=>el.innerHTML = ICON.flame);
   }
   $('btn-avatar').addEventListener('click', ()=> $('user-sheet').classList.add('active'));
   $('user-sheet').querySelector('.scrim').addEventListener('click', ()=> $('user-sheet').classList.remove('active'));
@@ -191,7 +194,7 @@
   // FETCH ALL
   // ============================================================
   async function fetchAll(){
-    await Promise.all([fetchSchedule(), fetchTasks(), fetchNotes(), fetchApuntes(), fetchExpenses(), fetchBudget(), fetchMonthlyTotals(), fetchPrefs()]);
+    await Promise.all([fetchSchedule(), fetchTasks(), fetchNotes(), fetchApuntes(), fetchExpenses(), fetchBudget(), fetchMonthlyTotals(), fetchPrefs(), fetchStreak()]);
   }
   function currentMonthKey(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
   function monthRange(monthKey){
@@ -258,7 +261,28 @@
     try{
       const { data: row } = await supabase.from('user_prefs').select('*').maybeSingle();
       if(row && row.widget) data.widget = row.widget;
+      if(row) data.streakEnabled = !!row.streak_enabled;
     }catch(e){ /* tabla puede no existir aún */ }
+  }
+  async function fetchStreak(){
+    try{
+      const since = new Date(); since.setDate(since.getDate()-90);
+      const { data: rows } = await supabase.from('streak_log').select('activity_date').gte('activity_date', since.toISOString().slice(0,10));
+      data.streakDates = (rows||[]).map(r=>r.activity_date);
+    }catch(e){ data.streakDates = []; }
+  }
+  function computeStreak(){
+    const set = new Set(data.streakDates);
+    const today = new Date();
+    let checkDate = new Date(today);
+    const todayStr = checkDate.toISOString().slice(0,10);
+    if(!set.has(todayStr)) checkDate.setDate(checkDate.getDate()-1);
+    let streak = 0;
+    while(set.has(checkDate.toISOString().slice(0,10))){
+      streak++;
+      checkDate.setDate(checkDate.getDate()-1);
+    }
+    return streak;
   }
 
   // ============================================================
@@ -437,6 +461,47 @@
   // ============================================================
   // TAREAS
   // ============================================================
+  function burstConfetti(el){
+    const colors = ['#8b4ef2','#4ade80','#f472b6','#fbbf24','#60a5fa'];
+    for(let i=0;i<8;i++){
+      const piece = document.createElement('span');
+      piece.className = 'confetti-piece';
+      const angle = (Math.PI*2*i/8) + (Math.random()*0.5 - 0.25);
+      const dist = 24 + Math.random()*16;
+      piece.style.setProperty('--tx', Math.cos(angle)*dist + 'px');
+      piece.style.setProperty('--ty', Math.sin(angle)*dist + 'px');
+      piece.style.background = colors[i % colors.length];
+      el.appendChild(piece);
+      setTimeout(()=>piece.remove(), 650);
+    }
+  }
+  async function logStreakToday(){
+    const todayStr = new Date().toISOString().slice(0,10);
+    if(!data.streakDates.includes(todayStr)){
+      try{
+        await supabase.from('streak_log').upsert({ activity_date: todayStr }, { onConflict:'user_id,activity_date' });
+        data.streakDates.push(todayStr);
+      }catch(e){}
+    }
+  }
+  function renderStreakCard(){
+    const card = $('streak-card');
+    if(!data.streakEnabled){ card.style.display = 'none'; return; }
+    card.style.display = 'flex';
+    $('streak-num').textContent = computeStreak();
+  }
+  $('btn-streak').addEventListener('click', async ()=>{
+    data.streakEnabled = !data.streakEnabled;
+    try{
+      await supabase.from('user_prefs').upsert({ streak_enabled: data.streakEnabled }, { onConflict:'user_id' });
+    }catch(e){}
+    $('btn-streak').innerHTML = `<span data-icon="flame"></span> ${data.streakEnabled ? 'Desactivar racha' : 'Activar racha'}`;
+    document.querySelectorAll('[data-icon="flame"]').forEach(el=>el.innerHTML = ICON.flame);
+    renderStreakCard();
+    toast(data.streakEnabled ? 'Racha activada' : 'Racha desactivada');
+    $('user-sheet').classList.remove('active');
+  });
+
   function renderTasks(){
     const list = $('task-list');
     let items = data.tasks.slice().sort((a,b)=> (a.done - b.done) || (a.createdAt<b.createdAt?1:-1));
@@ -456,11 +521,22 @@
         <div class="task-main"><div class="task-title">${escapeHtml(t.title)}</div><div class="task-tags">${tags}</div></div>
         <button class="task-del" data-id="${t.id}">${ICON.x}</button>
       `;
-      row.querySelector('.task-check').addEventListener('click', async ()=>{
+      const checkEl = row.querySelector('.task-check');
+      checkEl.addEventListener('click', async ()=>{
         const newDone = !t.done;
+        if(newDone){
+          checkEl.classList.add('pop');
+          burstConfetti(checkEl);
+        }
         const { error } = await supabase.from('tasks').update({done:newDone}).eq('id', t.id);
         if(error){ toast('No se pudo actualizar'); return; }
-        t.done = newDone; renderTasks(); renderWidget();
+        t.done = newDone;
+        if(newDone) await logStreakToday();
+        if(newDone){
+          setTimeout(()=>{ renderTasks(); renderWidget(); renderStreakCard(); }, 420);
+        } else {
+          renderTasks(); renderWidget();
+        }
       });
       row.querySelector('.task-del').addEventListener('click', async ()=>{
         const { error } = await supabase.from('tasks').delete().eq('id', t.id);
@@ -930,7 +1006,7 @@
   function emptyState(icon, cls, text){
     return `<div class="empty-state" style="grid-column:1/-1;"><div class="icon-sq ${cls}">${icon}</div><p>${text}</p></div>`;
   }
-  function renderAll(){ renderCalendar(); renderTasks(); renderNotes(); renderApuntes(); renderGastos(); renderWidget(); }
+  function renderAll(){ renderCalendar(); renderTasks(); renderNotes(); renderApuntes(); renderGastos(); renderWidget(); renderStreakCard(); }
 
   init();
 

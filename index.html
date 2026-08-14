@@ -209,14 +209,38 @@
   .task-list{display:flex;flex-direction:column;gap:9px;}
   .task-row{display:flex;align-items:flex-start;gap:12px;padding:13px 14px;}
   .task-check{
+    position:relative;
     width:23px;height:23px;border-radius:8px;border:2px solid rgba(122,47,224,.3);flex-shrink:0;cursor:pointer;
     display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .12s ease;background:rgba(255,255,255,.6);color:transparent;
   }
   .task-check svg{width:14px;height:14px;stroke-width:3;}
   .task-check.done{background:linear-gradient(135deg, var(--p-500), var(--p-700));border-color:transparent;color:#fff;}
+  .task-check.pop{animation:task-pop .45s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes task-pop{0%{transform:scale(1);}40%{transform:scale(1.35);}65%{transform:scale(.9);}100%{transform:scale(1);}}
+  .confetti-piece{
+    position:absolute;top:50%;left:50%;width:6px;height:6px;border-radius:50%;
+    pointer-events:none;z-index:5;animation:confetti-burst .6s ease-out forwards;
+  }
+  @keyframes confetti-burst{0%{transform:translate(-50%,-50%) scale(1);opacity:1;}100%{transform:translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(0);opacity:0;}}
   .task-main{flex:1;min-width:0;}
   .task-title{font-size:14.5px;font-weight:700;overflow-wrap:anywhere;word-break:break-word;}
   .task-row.done .task-title{text-decoration:line-through;color:var(--ink-faint);}
+
+  .streak-card{display:flex;align-items:center;gap:6px;margin:0 4px 16px;animation:fadein .3s ease;}
+  .streak-mascot{width:76px;height:auto;flex-shrink:0;animation:g-float 3.4s ease-in-out infinite;}
+  .streak-bubble{
+    position:relative;background:#fff;border-radius:22px;padding:10px 18px 12px;text-align:center;
+    box-shadow:0 8px 20px rgba(122,47,224,.16);min-width:78px;
+  }
+  .streak-bubble::before{
+    content:'';position:absolute;left:-9px;bottom:14px;width:12px;height:12px;background:#fff;border-radius:50%;
+  }
+  .streak-bubble::after{
+    content:'';position:absolute;left:-18px;bottom:6px;width:7px;height:7px;background:#fff;border-radius:50%;
+  }
+  .streak-flame{font-size:17px;line-height:1;margin-bottom:2px;}
+  .streak-num{font-size:24px;font-weight:800;color:var(--p-600);line-height:1;}
+  .streak-lbl{font-size:11px;font-weight:700;color:var(--ink-soft);margin-top:1px;}
   .task-tags{display:flex;gap:7px;margin-top:6px;flex-wrap:wrap;}
   .tag{font-size:10.5px;padding:3px 9px;border-radius:20px;background:var(--p-50);color:var(--p-700);font-weight:700;display:flex;align-items:center;gap:4px;}
   .tag svg{width:11px;height:11px;}
@@ -454,6 +478,14 @@
           <div><h1>Tareas</h1><div class="sub" id="tasks-count-lbl"></div></div>
           <button class="fab-btn" id="btn-add-task"><span data-icon="plus"></span>Tarea</button>
         </div>
+        <div class="streak-card" id="streak-card" style="display:none;">
+          <img src="icons/mascot-streak.png" alt="" class="streak-mascot">
+          <div class="streak-bubble">
+            <div class="streak-flame">🔥</div>
+            <div class="streak-num" id="streak-num">0</div>
+            <div class="streak-lbl">racha</div>
+          </div>
+        </div>
         <div class="task-filters">
           <button class="chip-filter active" data-filter="all">Todas</button>
           <button class="chip-filter" data-filter="pending">Pendientes</button>
@@ -567,6 +599,7 @@
       <div><div class="name" id="sheet-name">—</div><div class="mail" id="sheet-mail">—</div></div>
     </div>
     <button class="sheet-btn" id="btn-notifications"><span data-icon="bell"></span> Activar notificaciones</button>
+    <button class="sheet-btn" id="btn-streak"><span data-icon="flame"></span> Activar racha</button>
     <button class="sheet-btn btn-logout" id="btn-logout"><span data-icon="logout"></span> Cerrar sesión</button>
   </div>
 </div>
