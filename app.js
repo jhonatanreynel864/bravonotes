@@ -83,6 +83,7 @@
     food: '<svg class="icon" viewBox="0 0 24 24"><path d="M18 8h1a3 3 0 0 1 0 6h-1"/><path d="M2 8h16v6a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8Z"/><line x1="6" y1="2" x2="6" y2="5"/><line x1="10" y1="2" x2="10" y2="5"/><line x1="14" y1="2" x2="14" y2="5"/></svg>',
     copy: '<svg class="icon" viewBox="0 0 24 24"><rect x="4" y="4" width="12" height="16" rx="1.5"/><line x1="7" y1="9" x2="13" y2="9"/><line x1="7" y1="13" x2="13" y2="13"/><line x1="7" y1="17" x2="11" y2="17"/></svg>',
     dots: '<svg class="icon" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg>',
+    dotsV: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none"/></svg>',
     google: '<svg viewBox="0 0 24 24" width="19" height="19"><path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.28 1.48-1.13 2.73-2.4 3.58v2.98h3.88c2.27-2.09 3.54-5.17 3.54-8.8z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.07 7.93-2.91l-3.88-2.98c-1.07.72-2.45 1.16-4.05 1.16-3.12 0-5.76-2.11-6.71-4.94H1.28v3.09C3.25 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.29 14.33A7.19 7.19 0 0 1 4.91 12c0-.81.14-1.6.38-2.33V6.58H1.28A11.98 11.98 0 0 0 0 12c0 1.93.46 3.76 1.28 5.42l4.01-3.09z"/><path fill="#EA4335" d="M12 4.77c1.76 0 3.34.61 4.58 1.79l3.44-3.44C17.94 1.19 15.24 0 12 0 7.31 0 3.25 2.7 1.28 6.58l4.01 3.09C6.24 6.84 8.88 4.77 12 4.77z"/></svg>',
     settings: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
     bell: '<svg class="icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
@@ -220,9 +221,16 @@
     data.notes = rows.map(r=>({ id:r.id, title:r.title, content:r.content, createdAt:r.created_at }));
   }
   async function fetchApuntes(){
-    const { data: rows, error } = await supabase.from('apuntes').select('id,title,type,file_name,file_size,created_at').order('created_at', {ascending:false});
+    const { data: rows, error } = await supabase.from('apuntes').select('id,title,type,file_name,file_size,file_path,created_at').order('created_at', {ascending:false});
     if(error){ data.apuntesIndex=[]; return; }
-    data.apuntesIndex = rows.map(r=>({ id:r.id, title:r.title, type:r.type, fileName:r.file_name, size:r.file_size, createdAt:r.created_at }));
+    data.apuntesIndex = rows.map(r=>({ id:r.id, title:r.title, type:r.type, fileName:r.file_name, size:r.file_size, filePath:r.file_path, createdAt:r.created_at, thumbUrl:null }));
+    const imageRows = data.apuntesIndex.filter(a=>a.type==='image' && a.filePath);
+    await Promise.all(imageRows.map(async a=>{
+      try{
+        const { data: signed } = await supabase.storage.from('apuntes-files').createSignedUrl(a.filePath, 3600);
+        if(signed) a.thumbUrl = signed.signedUrl;
+      }catch(e){}
+    }));
   }
   async function fetchExpenses(){
     const {start, end} = monthRange(currentMonthKey());
@@ -636,6 +644,45 @@
     if(ext==='pdf') return {icon: ICON.fileIc, cls:'isq-rose'};
     return {icon: ICON.fileIc, cls:'isq-amber'};
   }
+  function formatRelative(iso){
+    const d = new Date(iso);
+    const now = new Date();
+    const diffMs = now - d;
+    const diffDays = Math.floor(diffMs / 86400000);
+    if(diffDays <= 0){
+      const diffHours = Math.floor(diffMs/3600000);
+      if(diffHours < 1) return 'Hace un momento';
+      if(diffHours === 1) return 'Hace 1 hora';
+      return `Hace ${diffHours} horas`;
+    }
+    if(diffDays === 1) return 'Ayer';
+    if(diffDays < 7) return `Hace ${diffDays} días`;
+    return formatDate(iso);
+  }
+  function closeApunteMenus(){ document.querySelectorAll('.apunte-menu.open').forEach(m=>m.classList.remove('open')); }
+  document.addEventListener('click', (e)=>{
+    if(!e.target.closest('.apunte-menu-btn') && !e.target.closest('.apunte-menu')) closeApunteMenus();
+  });
+  async function downloadApunte(a){
+    toast('Preparando descarga…');
+    if(a.type==='text'){
+      const { data: row } = await supabase.from('apuntes').select('content').eq('id', a.id).single();
+      const blob = new Blob([row.content||''], {type:'text/plain'});
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl; link.download = (a.title||'apunte') + '.txt';
+      link.click();
+      URL.revokeObjectURL(blobUrl);
+    } else {
+      const { data: row, error: e1 } = await supabase.from('apuntes').select('file_path,file_name').eq('id', a.id).single();
+      if(e1){ toast('No se pudo descargar'); return; }
+      const { data: signed, error: e2 } = await supabase.storage.from('apuntes-files').createSignedUrl(row.file_path, 300);
+      if(e2){ toast('No se pudo descargar'); return; }
+      const link = document.createElement('a');
+      link.href = signed.signedUrl; link.download = row.file_name || a.title; link.target = '_blank';
+      link.click();
+    }
+  }
   function renderApuntes(){
     const grid = $('apuntes-grid');
     $('apuntes-count-lbl').textContent = `${data.apuntesIndex.length} apunte${data.apuntesIndex.length===1?'':'s'}`;
@@ -645,19 +692,36 @@
       const card = document.createElement('div');
       card.className = 'glass-card apunte-card';
       const meta = iconFor(a.type, a.fileName);
+      const thumbInner = (a.type==='image' && a.thumbUrl) ? `<img src="${a.thumbUrl}" alt="">` : `<div class="icon-sq ${meta.cls}">${meta.icon}</div>`;
       card.innerHTML = `
-        <div class="apunte-thumb"><div class="icon-sq ${meta.cls}">${meta.icon}</div></div>
-        <div class="apunte-body">
-          <h3>${escapeHtml(a.title)}</h3>
-          <div class="meta">${formatDate(a.createdAt)}${a.size?' · '+formatSize(a.size):''}</div>
-          <div class="apunte-actions">
-            <button class="btn-ghost-sm view-btn">${ICON.eyeSm} Ver</button>
-            <button class="btn-ghost-sm del-btn">${ICON.trashSm} Eliminar</button>
+        <button class="apunte-menu-btn">${ICON.dotsV}</button>
+        <div class="apunte-menu">
+          <button class="del-btn">${ICON.trashSm} Eliminar</button>
+        </div>
+        <div class="apunte-h-top">
+          <div class="apunte-thumb">${thumbInner}</div>
+          <div class="apunte-info">
+            <h3>${escapeHtml(a.title)}</h3>
+            <div class="meta">${formatRelative(a.createdAt)}</div>
+            ${a.size ? `<span class="apunte-size-chip">${formatSize(a.size)}</span>` : ''}
           </div>
+        </div>
+        <div class="apunte-actions">
+          <button class="btn-ghost-sm view-btn">${ICON.eyeSm} Ver</button>
+          <button class="btn-ghost-sm download-btn">${ICON.download} Descargar</button>
         </div>
       `;
       card.querySelector('.view-btn').addEventListener('click', ()=>viewApunte(a));
+      card.querySelector('.download-btn').addEventListener('click', ()=>downloadApunte(a));
+      card.querySelector('.apunte-menu-btn').addEventListener('click', (e)=>{
+        e.stopPropagation();
+        const menu = card.querySelector('.apunte-menu');
+        const wasOpen = menu.classList.contains('open');
+        closeApunteMenus();
+        if(!wasOpen) menu.classList.add('open');
+      });
       card.querySelector('.del-btn').addEventListener('click', async ()=>{
+        closeApunteMenus();
         if(a.type!=='text'){
           const { data: full } = await supabase.from('apuntes').select('file_path').eq('id', a.id).single();
           if(full && full.file_path) await supabase.storage.from('apuntes-files').remove([full.file_path]);
@@ -673,20 +737,68 @@
   let fullscreenZoomOpen = false;
   function openFullscreenImage(url, filename){
     fullscreenZoomOpen = true;
-    const viewportMeta = document.querySelector('meta[name="viewport"]');
-    const originalViewport = viewportMeta ? viewportMeta.getAttribute('content') : null;
-    if(viewportMeta) viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover');
     const wrap = document.createElement('div');
     wrap.id = 'img-fullscreen';
-    wrap.style.cssText = 'position:fixed;inset:0;z-index:200;background:rgba(10,5,20,.94);display:flex;align-items:center;justify-content:center;touch-action:pinch-zoom pan-x pan-y;overscroll-behavior:contain;';
+    wrap.style.cssText = 'position:fixed;inset:0;z-index:200;background:rgba(10,5,20,.94);display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none;';
     wrap.innerHTML = `
-      <img src="${url}" style="max-width:100%;max-height:100%;touch-action:pinch-zoom pan-x pan-y;">
-      <button id="img-fullscreen-close" style="position:fixed;top:calc(16px + env(safe-area-inset-top));right:16px;width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;">${ICON.x}</button>
+      <img id="img-fs-img" src="${url}" draggable="false" style="max-width:90%;max-height:90%;touch-action:none;user-select:none;-webkit-user-select:none;will-change:transform;transition:transform .15s ease-out;">
+      <button id="img-fullscreen-close" style="position:fixed;top:calc(16px + env(safe-area-inset-top));right:16px;width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;z-index:2;">${ICON.x}</button>
+      <div style="position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);color:rgba(255,255,255,.6);font-size:11.5px;font-weight:600;">Pellizca para hacer zoom · doble toque para acercar</div>
     `;
     document.body.appendChild(wrap);
+    const img = $('img-fs-img');
+
+    let scale = 1, tx = 0, ty = 0;
+    let startDist = 0, startScale = 1;
+    let startTx = 0, startTy = 0, startX = 0, startY = 0;
+    let lastTapTime = 0;
+
+    function applyTransform(animate){
+      img.style.transition = animate ? 'transform .25s ease-out' : 'none';
+      img.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    }
+    function clamp(){
+      scale = Math.min(Math.max(scale, 1), 5);
+      if(scale === 1){ tx = 0; ty = 0; }
+    }
+    function dist(touches){
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.sqrt(dx*dx + dy*dy);
+    }
+
+    wrap.addEventListener('touchstart', (e)=>{
+      if(e.touches.length === 2){
+        startDist = dist(e.touches);
+        startScale = scale;
+      } else if(e.touches.length === 1){
+        startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+        startTx = tx; startTy = ty;
+        const now = Date.now();
+        if(now - lastTapTime < 300){
+          scale = scale > 1 ? 1 : 2.4;
+          tx = 0; ty = 0;
+          clamp(); applyTransform(true);
+        }
+        lastTapTime = now;
+      }
+    }, { passive:true });
+
+    wrap.addEventListener('touchmove', (e)=>{
+      e.preventDefault();
+      if(e.touches.length === 2){
+        const newDist = dist(e.touches);
+        scale = startScale * (newDist / startDist);
+        clamp(); applyTransform(false);
+      } else if(e.touches.length === 1 && scale > 1){
+        tx = startTx + (e.touches[0].clientX - startX);
+        ty = startTy + (e.touches[0].clientY - startY);
+        applyTransform(false);
+      }
+    }, { passive:false });
+
     function close(){
       fullscreenZoomOpen = false;
-      if(viewportMeta && originalViewport) viewportMeta.setAttribute('content', originalViewport);
       wrap.remove();
     }
     wrap.addEventListener('click', (e)=>{ if(e.target===wrap) close(); });
@@ -796,7 +908,10 @@
         title, type: isImage ? 'image' : 'document', file_path: filePath, file_name: pendingFile.name, file_size: pendingFile.size,
       }).select('id,title,type,file_name,file_size,created_at').single();
       if(error){ toast('No se pudo guardar'); return; }
-      data.apuntesIndex.unshift({ id:row.id, title:row.title, type:row.type, fileName:row.file_name, size:row.file_size, createdAt:row.created_at });
+      data.apuntesIndex.unshift({
+        id:row.id, title:row.title, type:row.type, fileName:row.file_name, size:row.file_size,
+        createdAt:row.created_at, filePath, thumbUrl: isImage ? URL.createObjectURL(pendingFile) : null,
+      });
       closeModals(); renderApuntes(); renderWidget(); toast('Apunte guardado');
     }
   });
