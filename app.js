@@ -21,6 +21,13 @@
     {key:'apuntes', label:'Apuntes recientes', icon:'clip'},
   ];
 
+  const BOW_NAMES = ['Rosa','Morado','Amarillo','Azul','Verde','Negro','Blanco','Rojo','Coral','Turquesa'];
+  const HAT_NAMES = ['Gorra morada','Gorra amarilla','Gorra azul','Gorro rosa','Sombrero beige','Sombrero negro','Rana','Oso','Orejitas crema','Gorro azul','Boina roja','Sombrero margarita','Gorro amarillo','Orejitas moradas','Gorra osito'];
+  const ACCESSORIES = [
+    ...Array.from({length:10}, (_,i)=>({ id:'bow_'+i, type:'bow', file:`icons/accessories/bow_${i}.png`, label:BOW_NAMES[i], unlockDays: i<3 ? 2 : 5 })),
+    ...Array.from({length:15}, (_,i)=>({ id:'hat_'+i, type:'hat', file:`icons/accessories/hat_${i}.png`, label:HAT_NAMES[i], unlockDays: i<3 ? 2 : 5 })),
+  ];
+
   function mascotSvg(fillOuter, fillInner, blush){
     return `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
       <path d="M50,6 C72,4 94,22 92,46 C90,70 74,92 48,94 C24,96 6,76 8,50 C10,26 28,8 50,6 Z" fill="${fillOuter}"/>
@@ -35,8 +42,9 @@
       <path d="M79 16 l3.2 7.4 l7.4 3.2 l-7.4 3.2 l-3.2 7.4 l-3.2-7.4 l-7.4-3.2 l7.4-3.2 Z" fill="#fbbf24"/>
     </svg>`;
   }
-  const MASCOT_A = mascotSvg('#ddd6fe', '#8b4ef2', '#c4b5fd');
-  const MASCOT_B = mascotSvg('#fed7aa', '#f97316', '#fdba74');
+  const MASCOT_GASTOS = `<img src="icons/mascot-gastos.png" alt="" style="width:100%;height:100%;object-fit:contain;display:block;">`;
+  const MASCOT_A = MASCOT_GASTOS;
+  const MASCOT_B = MASCOT_GASTOS;
 
   if(!window.SUPABASE_URL || window.SUPABASE_URL.includes('TU-PROYECTO')){
     document.addEventListener('DOMContentLoaded', ()=>{
@@ -49,7 +57,7 @@
   }
   const supabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
-  let data = { user:null, schedule:[], tasks:[], notes:[], apuntesIndex:[], expenses:[], budget:null, monthlyTotals:[], widget:'clases', streakEnabled:false, streakDates:[] };
+  let data = { user:null, schedule:[], tasks:[], notes:[], apuntesIndex:[], expenses:[], budget:null, monthlyTotals:[], widget:'clases', streakEnabled:false, streakCount:0, streakLoggedToday:false, equippedAccessory:null };
   let currentFilter = 'all';
   let selectedColor = 'purple';
   let editingNoteId = null;
@@ -88,6 +96,8 @@
     settings: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
     bell: '<svg class="icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
     flame: '<svg class="icon" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 17a2.5 2.5 0 0 0 2.5-2.5c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7.5 7.5 0 1 1-15 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',
+    hanger: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 4a2 2 0 1 1 2 2c-.5 0-.9.3-.9.8 0 .4.3.7.9 1l7 3.5a1.5 1.5 0 0 1-.7 2.8H3.7a1.5 1.5 0 0 1-.7-2.8l7-3.5c.6-.3.9-.6.9-1 0-.5-.4-.8-.9-.8"/><line x1="4" y1="17" x2="20" y2="17"/></svg>',
+    lock: '<svg class="icon" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
   };
   ICON.calendarSm = ICON.calendar;
   document.querySelectorAll('[data-icon]').forEach(el=>{
@@ -270,27 +280,16 @@
       const { data: row } = await supabase.from('user_prefs').select('*').maybeSingle();
       if(row && row.widget) data.widget = row.widget;
       if(row) data.streakEnabled = !!row.streak_enabled;
+      if(row && row.equipped_accessory) data.equippedAccessory = row.equipped_accessory;
     }catch(e){ /* tabla puede no existir aún */ }
   }
   async function fetchStreak(){
     try{
-      const since = new Date(); since.setDate(since.getDate()-90);
-      const { data: rows } = await supabase.from('streak_log').select('activity_date').gte('activity_date', localDateStr(since));
-      data.streakDates = (rows||[]).map(r=>r.activity_date);
-    }catch(e){ data.streakDates = []; }
-  }
-  function computeStreak(){
-    const set = new Set(data.streakDates);
-    const today = new Date();
-    let checkDate = new Date(today);
-    const todayStr = localDateStr(checkDate);
-    if(!set.has(todayStr)) checkDate.setDate(checkDate.getDate()-1);
-    let streak = 0;
-    while(set.has(localDateStr(checkDate))){
-      streak++;
-      checkDate.setDate(checkDate.getDate()-1);
-    }
-    return streak;
+      const { count } = await supabase.from('streak_log').select('activity_date', { count:'exact', head:true });
+      data.streakCount = count || 0;
+      const { data: todayRow } = await supabase.from('streak_log').select('id').eq('activity_date', localDateStr()).maybeSingle();
+      data.streakLoggedToday = !!todayRow;
+    }catch(e){ data.streakCount = 0; data.streakLoggedToday = false; }
   }
 
   // ============================================================
@@ -484,20 +483,76 @@
     }
   }
   async function logStreakToday(){
-    const todayStr = localDateStr();
-    if(!data.streakDates.includes(todayStr)){
-      try{
-        await supabase.from('streak_log').upsert({ activity_date: todayStr }, { onConflict:'user_id,activity_date' });
-        data.streakDates.push(todayStr);
-      }catch(e){}
-    }
+    if(data.streakLoggedToday) return;
+    try{
+      const { error } = await supabase.from('streak_log').insert({ activity_date: localDateStr() });
+      if(!error){
+        data.streakLoggedToday = true;
+        data.streakCount++;
+      }
+    }catch(e){}
   }
   function renderStreakCard(){
     const card = $('streak-card');
     if(!data.streakEnabled){ card.style.display = 'none'; return; }
     card.style.display = 'flex';
-    $('streak-num').textContent = computeStreak();
+    $('streak-num').textContent = data.streakCount;
+    renderEquippedAccessory();
   }
+  function renderEquippedAccessory(){
+    const img = $('streak-accessory-img');
+    if(!data.equippedAccessory){
+      img.style.display = 'none';
+      return;
+    }
+    const item = ACCESSORIES.find(a=>a.id===data.equippedAccessory);
+    if(!item || data.streakCount < item.unlockDays){
+      img.style.display = 'none';
+      return;
+    }
+    img.src = item.file;
+    img.className = 'streak-accessory ' + (item.type==='hat' ? 'is-hat' : 'is-bow');
+    img.style.display = 'block';
+  }
+  function daysLeftText(d){
+    return d === 1 ? 'Falta 1 día' : `Faltan ${d} días`;
+  }
+  function renderWardrobe(){
+    const bowsWrap = $('wardrobe-bows');
+    const hatsWrap = $('wardrobe-hats');
+    bowsWrap.innerHTML = ''; hatsWrap.innerHTML = '';
+    ACCESSORIES.forEach(item=>{
+      const unlocked = data.streakCount >= item.unlockDays;
+      const equipped = data.equippedAccessory === item.id;
+      const el = document.createElement('div');
+      el.className = 'wardrobe-item' + (unlocked ? '' : ' locked') + (equipped ? ' equipped' : '');
+      el.innerHTML = `
+        <img src="${item.file}" alt="">
+        <div class="wi-lbl">${item.label}</div>
+        ${equipped ? `<div class="wi-check">${ICON.check}</div>` : ''}
+        ${!unlocked ? `<div class="wi-lock">${ICON.lock}<span>${daysLeftText(item.unlockDays - data.streakCount)}</span></div>` : ''}
+      `;
+      if(unlocked){
+        el.addEventListener('click', async ()=>{
+          data.equippedAccessory = equipped ? null : item.id;
+          try{
+            await supabase.from('user_prefs').upsert({ equipped_accessory: data.equippedAccessory }, { onConflict:'user_id' });
+          }catch(e){}
+          renderWardrobe();
+          renderEquippedAccessory();
+        });
+      }
+      (item.type==='bow' ? bowsWrap : hatsWrap).appendChild(el);
+    });
+  }
+  function openWardrobe(){
+    if(!data.streakEnabled){ toast('Primero activa la racha desde tu perfil'); return; }
+    renderWardrobe();
+    $('modal-wardrobe').classList.add('active');
+  }
+  $('btn-wardrobe').addEventListener('click', (e)=>{ e.stopPropagation(); openWardrobe(); });
+  $('streak-mascot-wrap').addEventListener('click', openWardrobe);
+
   $('btn-streak').addEventListener('click', async ()=>{
     data.streakEnabled = !data.streakEnabled;
     try{
