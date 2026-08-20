@@ -27,7 +27,8 @@
   const ACCESSORIES = [
     ...Array.from({length:10}, (_,i)=>({ id:'bow_'+i, type:'bow', file:`icons/accessories/bow_${i}.png`, label:BOW_NAMES[i], unlockDays: i<3 ? 2 : (i-2)*3 })),
     ...Array.from({length:15}, (_,i)=>({ id:'hat_'+i, type:'hat', file:`icons/accessories/hat_${i}.png`, label:HAT_NAMES[i], unlockDays: i<3 ? 2 : (i-2)*3 })),
-  ].map(a => ({ ...a, fullImage: FULL_IMAGE_IDS.has(a.id) ? `icons/full/full_${a.id}.png` : null }));
+  ].map(a => ({ ...a, fullImage: FULL_IMAGE_IDS.has(a.id) ? `icons/full/full_${a.id}.png` : null }))
+   .filter(a => FULL_IMAGE_IDS.has(a.id));
 
   function mascotSvg(fillOuter, fillInner, blush){
     return `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
