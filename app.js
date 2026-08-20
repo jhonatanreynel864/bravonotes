@@ -23,10 +23,11 @@
 
   const BOW_NAMES = ['Rosa','Morado','Amarillo','Azul','Verde','Negro','Blanco','Rojo','Coral','Turquesa'];
   const HAT_NAMES = ['Gorra morada','Gorra amarilla','Gorra azul','Gorro rosa','Sombrero beige','Sombrero negro','Rana','Oso','Orejitas crema','Gorro azul','Boina roja','Sombrero margarita','Gorro amarillo','Orejitas moradas','Gorra osito'];
+  const FULL_IMAGE_IDS = new Set(['bow_0','bow_1','bow_2','bow_3','bow_4','bow_5','bow_6','bow_7','bow_8','bow_9','hat_0','hat_1','hat_2','hat_3','hat_4','hat_5','hat_6','hat_7','hat_12','hat_14']);
   const ACCESSORIES = [
-    ...Array.from({length:10}, (_,i)=>({ id:'bow_'+i, type:'bow', file:`icons/accessories/bow_${i}.png`, label:BOW_NAMES[i], unlockDays: i<3 ? 2 : 5 })),
-    ...Array.from({length:15}, (_,i)=>({ id:'hat_'+i, type:'hat', file:`icons/accessories/hat_${i}.png`, label:HAT_NAMES[i], unlockDays: i<3 ? 2 : 5 })),
-  ];
+    ...Array.from({length:10}, (_,i)=>({ id:'bow_'+i, type:'bow', file:`icons/accessories/bow_${i}.png`, label:BOW_NAMES[i], unlockDays: i<3 ? 2 : (i-2)*3 })),
+    ...Array.from({length:15}, (_,i)=>({ id:'hat_'+i, type:'hat', file:`icons/accessories/hat_${i}.png`, label:HAT_NAMES[i], unlockDays: i<3 ? 2 : (i-2)*3 })),
+  ].map(a => ({ ...a, fullImage: FULL_IMAGE_IDS.has(a.id) ? `icons/full/full_${a.id}.png` : null }));
 
   function mascotSvg(fillOuter, fillInner, blush){
     return `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -500,19 +501,23 @@
     renderEquippedAccessory();
   }
   function renderEquippedAccessory(){
-    const img = $('streak-accessory-img');
-    if(!data.equippedAccessory){
-      img.style.display = 'none';
-      return;
+    const baseImg = $('streak-mascot-base');
+    const overlayImg = $('streak-accessory-img');
+    const item = data.equippedAccessory ? ACCESSORIES.find(a=>a.id===data.equippedAccessory) : null;
+    const validItem = (item && data.streakCount >= item.unlockDays) ? item : null;
+
+    if(validItem && validItem.fullImage){
+      baseImg.src = validItem.fullImage;
+      overlayImg.style.display = 'none';
+    } else if(validItem){
+      baseImg.src = 'icons/mascot-streak.png';
+      overlayImg.src = validItem.file;
+      overlayImg.className = 'streak-accessory ' + (validItem.type==='hat' ? 'is-hat' : 'is-bow');
+      overlayImg.style.display = 'block';
+    } else {
+      baseImg.src = 'icons/mascot-streak.png';
+      overlayImg.style.display = 'none';
     }
-    const item = ACCESSORIES.find(a=>a.id===data.equippedAccessory);
-    if(!item || data.streakCount < item.unlockDays){
-      img.style.display = 'none';
-      return;
-    }
-    img.src = item.file;
-    img.className = 'streak-accessory ' + (item.type==='hat' ? 'is-hat' : 'is-bow');
-    img.style.display = 'block';
   }
   function daysLeftText(d){
     return d === 1 ? 'Falta 1 día' : `Faltan ${d} días`;
@@ -527,7 +532,7 @@
       const el = document.createElement('div');
       el.className = 'wardrobe-item' + (unlocked ? '' : ' locked') + (equipped ? ' equipped' : '');
       el.innerHTML = `
-        <img src="${item.file}" alt="">
+        <img src="${item.fullImage || item.file}" alt="" class="${item.fullImage ? 'wi-full' : ''}">
         <div class="wi-lbl">${item.label}</div>
         ${equipped ? `<div class="wi-check">${ICON.check}</div>` : ''}
         ${!unlocked ? `<div class="wi-lock">${ICON.lock}<span>${daysLeftText(item.unlockDays - data.streakCount)}</span></div>` : ''}

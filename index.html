@@ -262,6 +262,7 @@
   }
   .wardrobe-item.equipped{border-color:var(--p-500);background:var(--p-50);}
   .wardrobe-item img{width:100%;max-width:64px;height:44px;object-fit:contain;margin:0 auto 6px;display:block;}
+  .wardrobe-item img.wi-full{height:68px;max-width:80px;}
   .wardrobe-item .wi-lbl{font-size:10px;font-weight:700;color:var(--ink-soft);}
   .wardrobe-item.locked{cursor:default;opacity:.55;}
   .wardrobe-item.locked img{filter:grayscale(1);}
@@ -541,7 +542,7 @@
         </div>
         <div class="streak-card" id="streak-card" style="display:none;">
           <div class="streak-mascot-wrap" id="streak-mascot-wrap">
-            <img src="icons/mascot-streak.png" alt="" class="streak-mascot">
+            <img id="streak-mascot-base" src="icons/mascot-streak.png" alt="" class="streak-mascot">
             <img src="" alt="" class="streak-accessory" id="streak-accessory-img" style="display:none;">
           </div>
           <div class="streak-bubble">
