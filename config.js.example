@@ -1,0 +1,7 @@
+// ============================================================
+// EJEMPLO EN BLANCO — NO reemplaces tu config.js real con este.
+// Tu config.js ya tiene tus llaves de Supabase y VAPID configuradas.
+// ============================================================
+window.SUPABASE_URL = "https://TU-PROYECTO.supabase.co";
+window.SUPABASE_ANON_KEY = "TU-ANON-KEY-AQUI";
+window.VAPID_PUBLIC_KEY = "TU-VAPID-PUBLIC-KEY-AQUI";

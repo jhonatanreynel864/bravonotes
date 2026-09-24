@@ -1,18 +1,18 @@
 (function(){
   const DAYS = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
   const COLORS = [
-    {name:'blue', bg:'var(--blue-soft)', border:'#2563eb'},
-    {name:'green', bg:'var(--green-soft)', border:'#15803d'},
-    {name:'purple', bg:'var(--p-100)', border:'#5f22b3'},
-    {name:'amber', bg:'var(--amber-soft)', border:'#b45309'},
-    {name:'pink', bg:'var(--pink-soft)', border:'#db2777'},
-    {name:'rose', bg:'var(--rose-soft)', border:'#be123c'},
+    {name:'blue', bg:'rgba(96,165,250,.14)', border:'#60a5fa'},
+    {name:'green', bg:'rgba(52,211,153,.14)', border:'#34d399'},
+    {name:'purple', bg:'rgba(139,78,242,.14)', border:'#a374fb'},
+    {name:'amber', bg:'rgba(245,137,31,.14)', border:'#f5891f'},
+    {name:'pink', bg:'rgba(244,114,182,.14)', border:'#f472b6'},
+    {name:'rose', bg:'rgba(251,113,133,.14)', border:'#fb7185'},
   ];
   const EXP_CATEGORIES = [
-    {key:'transporte', label:'Transporte', icon:'car', cls:'g-cat-transporte', color:'#10b981'},
-    {key:'alimentacion', label:'Alimentación', icon:'food', cls:'g-cat-alimentacion', color:'#84cc16'},
-    {key:'fotocopias', label:'Fotocopias', icon:'copy', cls:'g-cat-fotocopias', color:'#14b8a6'},
-    {key:'otros', label:'Otros', icon:'dots', cls:'g-cat-otros', color:'#f59e0b'},
+    {key:'transporte', label:'Transporte', icon:'car', cls:'g-cat-transporte', color:'#34d399'},
+    {key:'alimentacion', label:'Alimentación', icon:'food', cls:'g-cat-alimentacion', color:'#bef264'},
+    {key:'fotocopias', label:'Fotocopias', icon:'copy', cls:'g-cat-fotocopias', color:'#5eead4'},
+    {key:'otros', label:'Otros', icon:'dots', cls:'g-cat-otros', color:'#fbbf24'},
   ];
   const WIDGET_OPTIONS = [
     {key:'clases', label:'Clases de hoy', icon:'calendar'},
@@ -21,37 +21,12 @@
     {key:'apuntes', label:'Apuntes recientes', icon:'clip'},
   ];
 
-  const BOW_NAMES = ['Rosa','Morado','Amarillo','Azul','Verde','Negro','Blanco','Rojo','Coral','Turquesa'];
-  const HAT_NAMES = ['Gorra morada','Gorra amarilla','Gorra azul','Gorro rosa','Sombrero beige','Sombrero negro','Rana','Oso','Orejitas crema','Gorro azul','Boina roja','Sombrero margarita','Gorro amarillo','Orejitas moradas','Gorra osito'];
-  const FULL_IMAGE_IDS = new Set(['bow_0','bow_1','bow_2','bow_3','bow_4','bow_5','bow_6','bow_7','bow_8','bow_9','hat_0','hat_1','hat_2','hat_3','hat_4','hat_5','hat_6','hat_7','hat_12','hat_14']);
-  const ACCESSORIES = [
-    ...Array.from({length:10}, (_,i)=>({ id:'bow_'+i, type:'bow', file:`icons/accessories/bow_${i}.png`, label:BOW_NAMES[i], unlockDays: i<3 ? 2 : (i-2)*3 })),
-    ...Array.from({length:15}, (_,i)=>({ id:'hat_'+i, type:'hat', file:`icons/accessories/hat_${i}.png`, label:HAT_NAMES[i], unlockDays: i<3 ? 2 : (i-2)*3 })),
-  ].map(a => ({ ...a, fullImage: FULL_IMAGE_IDS.has(a.id) ? `icons/full/full_${a.id}.png` : null }))
-   .filter(a => FULL_IMAGE_IDS.has(a.id));
-
-  function mascotSvg(fillOuter, fillInner, blush){
-    return `<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-      <path d="M50,6 C72,4 94,22 92,46 C90,70 74,92 48,94 C24,96 6,76 8,50 C10,26 28,8 50,6 Z" fill="${fillOuter}"/>
-      <circle cx="52" cy="54" r="27" fill="${fillInner}"/>
-      <ellipse cx="38" cy="60" rx="5.5" ry="3.5" fill="${blush}" opacity=".55"/>
-      <ellipse cx="66" cy="60" rx="5.5" ry="3.5" fill="${blush}" opacity=".55"/>
-      <circle cx="43" cy="49" r="4" fill="#0f2e1c"/>
-      <circle cx="44.3" cy="47.3" r="1.3" fill="#fff"/>
-      <circle cx="62" cy="49" r="4" fill="#0f2e1c"/>
-      <circle cx="63.3" cy="47.3" r="1.3" fill="#fff"/>
-      <path d="M44 61 Q52 68 60 61" stroke="#0f2e1c" stroke-width="3.2" fill="none" stroke-linecap="round"/>
-      <path d="M79 16 l3.2 7.4 l7.4 3.2 l-7.4 3.2 l-3.2 7.4 l-3.2-7.4 l-7.4-3.2 l7.4-3.2 Z" fill="#fbbf24"/>
-    </svg>`;
-  }
-  const MASCOT_GASTOS = `<img src="icons/mascot-gastos.png" alt="" style="width:100%;height:100%;object-fit:contain;display:block;">`;
-  const MASCOT_A = MASCOT_GASTOS;
-  const MASCOT_B = MASCOT_GASTOS;
+  const MASCOT_HALLOWEEN = `<img src="icons/mascot-halloween.png" alt="" style="width:100%;height:100%;object-fit:contain;display:block;">`;
 
   if(!window.SUPABASE_URL || window.SUPABASE_URL.includes('TU-PROYECTO')){
     document.addEventListener('DOMContentLoaded', ()=>{
       const el = document.getElementById('login-screen');
-      if(el) el.innerHTML = `<div style="max-width:380px;text-align:center;color:#fff;font-family:sans-serif;padding:24px;background:#5f22b3;border-radius:20px;">
+      if(el) el.innerHTML = `<div style="max-width:380px;text-align:center;color:#fff;font-family:sans-serif;padding:24px;background:#2a1550;border-radius:20px;">
         Falta configurar Supabase.<br><br>Abre <code>config.js</code> y pon la URL y la anon key de tu proyecto.
       </div>`;
     });
@@ -59,7 +34,7 @@
   }
   const supabase = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
-  let data = { user:null, schedule:[], tasks:[], notes:[], apuntesIndex:[], expenses:[], budget:null, monthlyTotals:[], widget:'clases', streakEnabled:false, streakCount:0, streakLoggedToday:false, equippedAccessory:null };
+  let data = { user:null, schedule:[], tasks:[], notes:[], apuntesIndex:[], expenses:[], budget:null, monthlyTotals:[], widget:'clases', streakEnabled:false, streakCount:0, streakLoggedToday:false };
   let currentFilter = 'all';
   let selectedColor = 'purple';
   let editingNoteId = null;
@@ -69,6 +44,13 @@
 
   const $ = (id) => document.getElementById(id);
   const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2,10) + Date.now().toString(36));
+  function localDateStr(d){
+    d = d || new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }
 
   const ICON = {
     plus: '<svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
@@ -93,13 +75,11 @@
     food: '<svg class="icon" viewBox="0 0 24 24"><path d="M18 8h1a3 3 0 0 1 0 6h-1"/><path d="M2 8h16v6a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8Z"/><line x1="6" y1="2" x2="6" y2="5"/><line x1="10" y1="2" x2="10" y2="5"/><line x1="14" y1="2" x2="14" y2="5"/></svg>',
     copy: '<svg class="icon" viewBox="0 0 24 24"><rect x="4" y="4" width="12" height="16" rx="1.5"/><line x1="7" y1="9" x2="13" y2="9"/><line x1="7" y1="13" x2="13" y2="13"/><line x1="7" y1="17" x2="11" y2="17"/></svg>',
     dots: '<svg class="icon" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none"/></svg>',
-    dotsV: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none"/></svg>',
     google: '<svg viewBox="0 0 24 24" width="19" height="19"><path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.28 1.48-1.13 2.73-2.4 3.58v2.98h3.88c2.27-2.09 3.54-5.17 3.54-8.8z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.07 7.93-2.91l-3.88-2.98c-1.07.72-2.45 1.16-4.05 1.16-3.12 0-5.76-2.11-6.71-4.94H1.28v3.09C3.25 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.29 14.33A7.19 7.19 0 0 1 4.91 12c0-.81.14-1.6.38-2.33V6.58H1.28A11.98 11.98 0 0 0 0 12c0 1.93.46 3.76 1.28 5.42l4.01-3.09z"/><path fill="#EA4335" d="M12 4.77c1.76 0 3.34.61 4.58 1.79l3.44-3.44C17.94 1.19 15.24 0 12 0 7.31 0 3.25 2.7 1.28 6.58l4.01 3.09C6.24 6.84 8.88 4.77 12 4.77z"/></svg>',
     settings: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
     bell: '<svg class="icon" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
     flame: '<svg class="icon" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 17a2.5 2.5 0 0 0 2.5-2.5c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7.5 7.5 0 1 1-15 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',
-    hanger: '<svg class="icon" viewBox="0 0 24 24"><path d="M12 4a2 2 0 1 1 2 2c-.5 0-.9.3-.9.8 0 .4.3.7.9 1l7 3.5a1.5 1.5 0 0 1-.7 2.8H3.7a1.5 1.5 0 0 1-.7-2.8l7-3.5c.6-.3.9-.6.9-1 0-.5-.4-.8-.9-.8"/><line x1="4" y1="17" x2="20" y2="17"/></svg>',
-    lock: '<svg class="icon" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+    dotsV: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none"/></svg>',
   };
   ICON.calendarSm = ICON.calendar;
   document.querySelectorAll('[data-icon]').forEach(el=>{
@@ -282,7 +262,6 @@
       const { data: row } = await supabase.from('user_prefs').select('*').maybeSingle();
       if(row && row.widget) data.widget = row.widget;
       if(row) data.streakEnabled = !!row.streak_enabled;
-      if(row && row.equipped_accessory) data.equippedAccessory = row.equipped_accessory;
     }catch(e){ /* tabla puede no existir aún */ }
   }
   async function fetchStreak(){
@@ -305,7 +284,7 @@
     if(data.widget === 'clases'){
       titleEl.textContent = 'Tus clases de hoy';
       const todays = data.schedule.filter(c=>c.day===todayIdx).sort((a,b)=>a.time.localeCompare(b.time));
-      if(todays.length===0){ body.innerHTML = '<div class="widget-empty">No tienes clases hoy 🎉</div>'; return; }
+      if(todays.length===0){ body.innerHTML = '<div class="widget-empty">No tienes clases hoy 🎃</div>'; return; }
       body.innerHTML = todays.map(c=>`<div class="widget-row"><span class="t">${c.time}</span><span class="s">${escapeHtml(c.subject)}</span></div>`).join('');
     } else if(data.widget === 'tareas'){
       titleEl.textContent = 'Tareas pendientes';
@@ -337,9 +316,7 @@
       el.innerHTML = `<div class="icon-sq isq-purple">${ICON[o.icon]}</div><span>${o.label}</span>`;
       el.addEventListener('click', async ()=>{
         data.widget = o.key;
-        try{
-          await supabase.from('user_prefs').upsert({ widget: o.key }, { onConflict:'user_id' });
-        }catch(e){}
+        try{ await supabase.from('user_prefs').upsert({ widget: o.key }, { onConflict:'user_id' }); }catch(e){}
         renderWidget();
         closeModals();
       });
@@ -468,10 +445,10 @@
   });
 
   // ============================================================
-  // TAREAS
+  // TAREAS + RACHA
   // ============================================================
   function burstConfetti(el){
-    const colors = ['#8b4ef2','#4ade80','#f472b6','#fbbf24','#60a5fa'];
+    const colors = ['#f5891f','#8b4ef2','#34d399','#fb7185','#fbbf24'];
     for(let i=0;i<8;i++){
       const piece = document.createElement('span');
       piece.className = 'confetti-piece';
@@ -488,10 +465,7 @@
     if(data.streakLoggedToday) return;
     try{
       const { error } = await supabase.from('streak_log').insert({ activity_date: localDateStr() });
-      if(!error){
-        data.streakLoggedToday = true;
-        data.streakCount++;
-      }
+      if(!error){ data.streakLoggedToday = true; data.streakCount++; }
     }catch(e){}
   }
   function renderStreakCard(){
@@ -499,71 +473,10 @@
     if(!data.streakEnabled){ card.style.display = 'none'; return; }
     card.style.display = 'flex';
     $('streak-num').textContent = data.streakCount;
-    renderEquippedAccessory();
   }
-  function renderEquippedAccessory(){
-    const baseImg = $('streak-mascot-base');
-    const overlayImg = $('streak-accessory-img');
-    const item = data.equippedAccessory ? ACCESSORIES.find(a=>a.id===data.equippedAccessory) : null;
-    const validItem = (item && data.streakCount >= item.unlockDays) ? item : null;
-
-    if(validItem && validItem.fullImage){
-      baseImg.src = validItem.fullImage;
-      overlayImg.style.display = 'none';
-    } else if(validItem){
-      baseImg.src = 'icons/mascot-streak.png';
-      overlayImg.src = validItem.file;
-      overlayImg.className = 'streak-accessory ' + (validItem.type==='hat' ? 'is-hat' : 'is-bow');
-      overlayImg.style.display = 'block';
-    } else {
-      baseImg.src = 'icons/mascot-streak.png';
-      overlayImg.style.display = 'none';
-    }
-  }
-  function daysLeftText(d){
-    return d === 1 ? 'Falta 1 día' : `Faltan ${d} días`;
-  }
-  function renderWardrobe(){
-    const bowsWrap = $('wardrobe-bows');
-    const hatsWrap = $('wardrobe-hats');
-    bowsWrap.innerHTML = ''; hatsWrap.innerHTML = '';
-    ACCESSORIES.forEach(item=>{
-      const unlocked = data.streakCount >= item.unlockDays;
-      const equipped = data.equippedAccessory === item.id;
-      const el = document.createElement('div');
-      el.className = 'wardrobe-item' + (unlocked ? '' : ' locked') + (equipped ? ' equipped' : '');
-      el.innerHTML = `
-        <img src="${item.fullImage || item.file}" alt="" class="${item.fullImage ? 'wi-full' : ''}">
-        <div class="wi-lbl">${item.label}</div>
-        ${equipped ? `<div class="wi-check">${ICON.check}</div>` : ''}
-        ${!unlocked ? `<div class="wi-lock">${ICON.lock}<span>${daysLeftText(item.unlockDays - data.streakCount)}</span></div>` : ''}
-      `;
-      if(unlocked){
-        el.addEventListener('click', async ()=>{
-          data.equippedAccessory = equipped ? null : item.id;
-          try{
-            await supabase.from('user_prefs').upsert({ equipped_accessory: data.equippedAccessory }, { onConflict:'user_id' });
-          }catch(e){}
-          renderWardrobe();
-          renderEquippedAccessory();
-        });
-      }
-      (item.type==='bow' ? bowsWrap : hatsWrap).appendChild(el);
-    });
-  }
-  function openWardrobe(){
-    if(!data.streakEnabled){ toast('Primero activa la racha desde tu perfil'); return; }
-    renderWardrobe();
-    $('modal-wardrobe').classList.add('active');
-  }
-  $('btn-wardrobe').addEventListener('click', (e)=>{ e.stopPropagation(); openWardrobe(); });
-  $('streak-mascot-wrap').addEventListener('click', openWardrobe);
-
   $('btn-streak').addEventListener('click', async ()=>{
     data.streakEnabled = !data.streakEnabled;
-    try{
-      await supabase.from('user_prefs').upsert({ streak_enabled: data.streakEnabled }, { onConflict:'user_id' });
-    }catch(e){}
+    try{ await supabase.from('user_prefs').upsert({ streak_enabled: data.streakEnabled }, { onConflict:'user_id' }); }catch(e){}
     $('btn-streak').innerHTML = `<span data-icon="flame"></span> ${data.streakEnabled ? 'Desactivar racha' : 'Activar racha'}`;
     document.querySelectorAll('[data-icon="flame"]').forEach(el=>el.innerHTML = ICON.flame);
     renderStreakCard();
@@ -593,19 +506,13 @@
       const checkEl = row.querySelector('.task-check');
       checkEl.addEventListener('click', async ()=>{
         const newDone = !t.done;
-        if(newDone){
-          checkEl.classList.add('pop');
-          burstConfetti(checkEl);
-        }
+        if(newDone){ checkEl.classList.add('pop'); burstConfetti(checkEl); }
         const { error } = await supabase.from('tasks').update({done:newDone}).eq('id', t.id);
         if(error){ toast('No se pudo actualizar'); return; }
         t.done = newDone;
         if(newDone) await logStreakToday();
-        if(newDone){
-          setTimeout(()=>{ renderTasks(); renderWidget(); renderStreakCard(); }, 420);
-        } else {
-          renderTasks(); renderWidget();
-        }
+        if(newDone){ setTimeout(()=>{ renderTasks(); renderWidget(); renderStreakCard(); }, 420); }
+        else { renderTasks(); renderWidget(); }
       });
       row.querySelector('.task-del').addEventListener('click', async ()=>{
         const { error } = await supabase.from('tasks').delete().eq('id', t.id);
@@ -628,10 +535,7 @@
   $('tk-save').addEventListener('click', async ()=>{
     const title = $('tk-title').value.trim();
     if(!title){ toast('Escribe el título de la tarea'); return; }
-    const payload = {
-      title, done:false, due_date: $('tk-date').value || null,
-      day: $('tk-day').value===''? null : parseInt($('tk-day').value,10),
-    };
+    const payload = { title, done:false, due_date: $('tk-date').value || null, day: $('tk-day').value===''? null : parseInt($('tk-day').value,10) };
     const { data: row, error } = await supabase.from('tasks').insert(payload).select().single();
     if(error){ toast('No se pudo guardar la tarea'); return; }
     data.tasks.unshift({ id:row.id, title:row.title, done:row.done, dueDate:row.due_date, day:row.day, createdAt:row.created_at });
@@ -756,9 +660,7 @@
       const thumbInner = (a.type==='image' && a.thumbUrl) ? `<img src="${a.thumbUrl}" alt="">` : `<div class="icon-sq ${meta.cls}">${meta.icon}</div>`;
       card.innerHTML = `
         <button class="apunte-menu-btn">${ICON.dotsV}</button>
-        <div class="apunte-menu">
-          <button class="del-btn">${ICON.trashSm} Eliminar</button>
-        </div>
+        <div class="apunte-menu"><button class="del-btn">${ICON.trashSm} Eliminar</button></div>
         <div class="apunte-h-top">
           <div class="apunte-thumb">${thumbInner}</div>
           <div class="apunte-info">
@@ -796,11 +698,11 @@
     });
   }
   let fullscreenZoomOpen = false;
-  function openFullscreenImage(url, filename){
+  function openFullscreenImage(url){
     fullscreenZoomOpen = true;
     const wrap = document.createElement('div');
     wrap.id = 'img-fullscreen';
-    wrap.style.cssText = 'position:fixed;inset:0;z-index:200;background:rgba(10,5,20,.94);display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none;';
+    wrap.style.cssText = 'position:fixed;inset:0;z-index:200;background:rgba(5,0,15,.95);display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none;';
     wrap.innerHTML = `
       <img id="img-fs-img" src="${url}" draggable="false" style="max-width:90%;max-height:90%;touch-action:none;user-select:none;-webkit-user-select:none;will-change:transform;transition:transform .15s ease-out;">
       <button id="img-fullscreen-close" style="position:fixed;top:calc(16px + env(safe-area-inset-top));right:16px;width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;z-index:2;">${ICON.x}</button>
@@ -808,64 +710,28 @@
     `;
     document.body.appendChild(wrap);
     const img = $('img-fs-img');
-
-    let scale = 1, tx = 0, ty = 0;
-    let startDist = 0, startScale = 1;
-    let startTx = 0, startTy = 0, startX = 0, startY = 0;
-    let lastTapTime = 0;
-
-    function applyTransform(animate){
-      img.style.transition = animate ? 'transform .25s ease-out' : 'none';
-      img.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-    }
-    function clamp(){
-      scale = Math.min(Math.max(scale, 1), 5);
-      if(scale === 1){ tx = 0; ty = 0; }
-    }
-    function dist(touches){
-      const dx = touches[0].clientX - touches[1].clientX;
-      const dy = touches[0].clientY - touches[1].clientY;
-      return Math.sqrt(dx*dx + dy*dy);
-    }
-
+    let scale=1, tx=0, ty=0, startDist=0, startScale=1, startTx=0, startTy=0, startX=0, startY=0, lastTapTime=0;
+    function applyTransform(animate){ img.style.transition = animate ? 'transform .25s ease-out' : 'none'; img.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`; }
+    function clamp(){ scale = Math.min(Math.max(scale, 1), 5); if(scale === 1){ tx=0; ty=0; } }
+    function dist(t){ const dx=t[0].clientX-t[1].clientX, dy=t[0].clientY-t[1].clientY; return Math.sqrt(dx*dx+dy*dy); }
     wrap.addEventListener('touchstart', (e)=>{
-      if(e.touches.length === 2){
-        startDist = dist(e.touches);
-        startScale = scale;
-      } else if(e.touches.length === 1){
-        startX = e.touches[0].clientX; startY = e.touches[0].clientY;
-        startTx = tx; startTy = ty;
+      if(e.touches.length === 2){ startDist = dist(e.touches); startScale = scale; }
+      else if(e.touches.length === 1){
+        startX = e.touches[0].clientX; startY = e.touches[0].clientY; startTx = tx; startTy = ty;
         const now = Date.now();
-        if(now - lastTapTime < 300){
-          scale = scale > 1 ? 1 : 2.4;
-          tx = 0; ty = 0;
-          clamp(); applyTransform(true);
-        }
+        if(now - lastTapTime < 300){ scale = scale > 1 ? 1 : 2.4; tx=0; ty=0; clamp(); applyTransform(true); }
         lastTapTime = now;
       }
     }, { passive:true });
-
     wrap.addEventListener('touchmove', (e)=>{
       e.preventDefault();
-      if(e.touches.length === 2){
-        const newDist = dist(e.touches);
-        scale = startScale * (newDist / startDist);
-        clamp(); applyTransform(false);
-      } else if(e.touches.length === 1 && scale > 1){
-        tx = startTx + (e.touches[0].clientX - startX);
-        ty = startTy + (e.touches[0].clientY - startY);
-        applyTransform(false);
-      }
+      if(e.touches.length === 2){ scale = startScale * (dist(e.touches) / startDist); clamp(); applyTransform(false); }
+      else if(e.touches.length === 1 && scale > 1){ tx = startTx + (e.touches[0].clientX - startX); ty = startTy + (e.touches[0].clientY - startY); applyTransform(false); }
     }, { passive:false });
-
-    function close(){
-      fullscreenZoomOpen = false;
-      wrap.remove();
-    }
+    function close(){ fullscreenZoomOpen = false; wrap.remove(); }
     wrap.addEventListener('click', (e)=>{ if(e.target===wrap) close(); });
     $('img-fullscreen-close').addEventListener('click', close);
   }
-
   async function viewApunte(a){
     const body = $('modal-view-body');
     body.innerHTML = `<h2>${escapeHtml(a.title)}</h2><p style="color:var(--ink-mute);">Cargando…</p>`;
@@ -884,15 +750,15 @@
         const url = signed.signedUrl;
         if(a.type==='image'){
           body.innerHTML = `<h2>${escapeHtml(a.title)}</h2>
-            <img src="${url}" id="apunte-img-preview" style="width:100%;border-radius:14px;max-height:65vh;object-fit:contain;background:var(--p-50);cursor:zoom-in;">
+            <img src="${url}" id="apunte-img-preview" style="width:100%;border-radius:14px;max-height:65vh;object-fit:contain;background:rgba(255,255,255,.04);cursor:zoom-in;">
             <p style="text-align:center;font-size:11.5px;color:var(--ink-mute);margin:8px 0 0;">Toca la imagen para verla más grande y hacer zoom</p>
             <div class="modal-actions"><a class="btn btn-ghost" href="${url}" download="${escapeHtml(row.file_name||a.title)}">${ICON.download} Descargar</a><button class="btn btn-dark" data-close>Cerrar</button></div>`;
-          $('apunte-img-preview').addEventListener('click', ()=> openFullscreenImage(url, row.file_name||a.title));
+          $('apunte-img-preview').addEventListener('click', ()=> openFullscreenImage(url));
         } else {
           const ext = (row.file_name||'').split('.').pop().toUpperCase();
           body.innerHTML = `<h2>${escapeHtml(a.title)}</h2>
-            <div style="background:var(--p-50);border-radius:16px;padding:40px 20px;text-align:center;margin-bottom:6px;">
-              <div style="width:64px;height:64px;border-radius:18px;background:#fff;color:var(--p-700);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:var(--glass-shadow);">
+            <div style="background:rgba(255,255,255,.04);border-radius:16px;padding:40px 20px;text-align:center;margin-bottom:6px;">
+              <div style="width:64px;height:64px;border-radius:18px;background:rgba(255,255,255,.08);color:var(--o-400);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
                 <span style="font-size:14px;font-weight:800;">${escapeHtml(ext||'DOC')}</span>
               </div>
               <p style="color:var(--ink-soft);font-size:14px;font-weight:600;word-break:break-word;margin:0;">${escapeHtml(row.file_name||'documento')}</p>
@@ -956,14 +822,8 @@
       const { data: { user } } = await supabase.auth.getUser();
       const safeName = pendingFile.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
       const filePath = `${user.id}/${uid()}-${safeName}`;
-      const { error: upErr } = await supabase.storage.from('apuntes-files').upload(filePath, pendingFile, {
-        contentType: pendingFile.type || 'application/octet-stream',
-      });
-      if(upErr){
-        console.error('Error subiendo archivo:', upErr);
-        toast('No se pudo subir: ' + (upErr.message || 'error desconocido'));
-        return;
-      }
+      const { error: upErr } = await supabase.storage.from('apuntes-files').upload(filePath, pendingFile, { contentType: pendingFile.type || 'application/octet-stream' });
+      if(upErr){ console.error('Error subiendo archivo:', upErr); toast('No se pudo subir: ' + (upErr.message || 'error desconocido')); return; }
       const isImage = pendingFile.type.startsWith('image/');
       const { data: row, error } = await supabase.from('apuntes').insert({
         title, type: isImage ? 'image' : 'document', file_path: filePath, file_name: pendingFile.name, file_size: pendingFile.size,
@@ -984,8 +844,8 @@
   function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
 
   function renderGastos(){
-    $('g-mascot-head').innerHTML = MASCOT_A;
-    $('g-mascot-nobudget').innerHTML = MASCOT_B;
+    $('g-mascot-head').innerHTML = MASCOT_HALLOWEEN;
+    $('g-mascot-nobudget').innerHTML = MASCOT_HALLOWEEN;
     const monthLabel = capitalize(new Date().toLocaleDateString('es-ES', {month:'long', year:'numeric'}));
     $('g-budget-month').textContent = monthLabel;
     const spent = data.expenses.reduce((s,e)=> s + e.amount, 0);
@@ -1046,7 +906,7 @@
 
     const list = $('g-expenses-list');
     if(data.expenses.length === 0){
-      list.innerHTML = `<div class="g-empty"><div class="g-mascot" style="width:88px;height:88px;">${MASCOT_B}</div><p>Aún no registras gastos este mes.</p></div>`;
+      list.innerHTML = `<div class="g-empty"><div class="g-mascot" style="width:88px;">${MASCOT_HALLOWEEN}</div><p>Aún no registras gastos este mes.</p></div>`;
     } else {
       list.innerHTML = '';
       data.expenses.forEach(e=>{
@@ -1087,9 +947,7 @@
       col.innerHTML = `<div class="bar" style="height:0%;" data-h="${heightPct}"></div><div class="lbl">${label}</div>`;
       wrap.appendChild(col);
     });
-    requestAnimationFrame(()=>{
-      wrap.querySelectorAll('.bar').forEach(b=>{ b.style.height = b.dataset.h + '%'; });
-    });
+    requestAnimationFrame(()=>{ wrap.querySelectorAll('.bar').forEach(b=>{ b.style.height = b.dataset.h + '%'; }); });
   }
   function formatDateLong(iso){
     const d = new Date(iso + 'T00:00:00');
@@ -1105,8 +963,7 @@
   $('gp-save').addEventListener('click', async ()=>{
     const amount = parseFloat($('gp-amount').value);
     if(!amount || amount <= 0){ toast('Escribe un presupuesto válido'); return; }
-    const { data: row, error } = await supabase.from('budgets')
-      .upsert({ month: currentMonthKey(), amount }, { onConflict: 'user_id,month' }).select().single();
+    const { data: row, error } = await supabase.from('budgets').upsert({ month: currentMonthKey(), amount }, { onConflict: 'user_id,month' }).select().single();
     if(error){ toast('No se pudo guardar el presupuesto'); return; }
     data.budget = { id: row.id, amount: Number(row.amount) };
     closeModals(); renderGastos(); renderWidget(); toast('Presupuesto guardado');
@@ -1132,10 +989,7 @@
   $('ge-save').addEventListener('click', async ()=>{
     const amount = parseFloat($('ge-amount').value);
     if(!amount || amount <= 0){ toast('Escribe un monto válido'); return; }
-    const payload = {
-      category: selectedExpCategory, amount, note: $('ge-note').value.trim() || null,
-      expense_date: $('ge-date').value || localDateStr(),
-    };
+    const payload = { category: selectedExpCategory, amount, note: $('ge-note').value.trim() || null, expense_date: $('ge-date').value || localDateStr() };
     const { data: row, error } = await supabase.from('expenses').insert(payload).select().single();
     if(error){ toast('No se pudo guardar el gasto'); return; }
     const {start, end} = monthRange(currentMonthKey());
@@ -1148,7 +1002,7 @@
   });
 
   // ============================================================
-  // NOTIFICACIONES PUSH REALES
+  // NOTIFICACIONES PUSH
   // ============================================================
   function urlBase64ToUint8Array(base64String){
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -1156,12 +1010,11 @@
     const rawData = atob(base64);
     return Uint8Array.from([...rawData].map(c=>c.charCodeAt(0)));
   }
-
   async function updateNotifBtnLabel(){
     const btn = $('btn-notifications');
     if(!('serviceWorker' in navigator) || !('PushManager' in window)){
-      btn.querySelector('span:last-child')?.remove();
       btn.innerHTML = `<span data-icon="bell"></span> No disponible en este navegador`;
+      document.querySelectorAll('[data-icon="bell"]').forEach(el=>el.innerHTML = ICON.bell);
       btn.disabled = true;
       return;
     }
@@ -1170,48 +1023,28 @@
       const sub = await reg.pushManager.getSubscription();
       const label = sub ? 'Notificaciones activadas ✓' : 'Activar notificaciones';
       btn.innerHTML = `<span data-icon="bell"></span> ${label}`;
+      document.querySelectorAll('[data-icon="bell"]').forEach(el=>el.innerHTML = ICON.bell);
     }catch(e){}
   }
-
   $('btn-notifications').addEventListener('click', async ()=>{
-    if(!('serviceWorker' in navigator) || !('PushManager' in window)){
-      toast('Tu navegador no soporta notificaciones push'); return;
-    }
-    if(!window.VAPID_PUBLIC_KEY || window.VAPID_PUBLIC_KEY.includes('TU-')){
-      toast('Falta configurar la llave VAPID'); return;
-    }
+    if(!('serviceWorker' in navigator) || !('PushManager' in window)){ toast('Tu navegador no soporta notificaciones push'); return; }
+    if(!window.VAPID_PUBLIC_KEY || window.VAPID_PUBLIC_KEY.includes('TU-')){ toast('Falta configurar la llave VAPID'); return; }
     const perm = await Notification.requestPermission();
     if(perm !== 'granted'){ toast('No se activaron las notificaciones'); return; }
     try{
       const reg = await navigator.serviceWorker.ready;
       let sub = await reg.pushManager.getSubscription();
-      if(!sub){
-        sub = await reg.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(window.VAPID_PUBLIC_KEY),
-        });
-      }
+      if(!sub){ sub = await reg.pushManager.subscribe({ userVisibleOnly:true, applicationServerKey: urlBase64ToUint8Array(window.VAPID_PUBLIC_KEY) }); }
       const json = sub.toJSON();
-      const { error } = await supabase.from('push_subscriptions').upsert({
-        endpoint: json.endpoint, p256dh: json.keys.p256dh, auth: json.keys.auth,
-      }, { onConflict:'endpoint' });
+      const { error } = await supabase.from('push_subscriptions').upsert({ endpoint: json.endpoint, p256dh: json.keys.p256dh, auth: json.keys.auth }, { onConflict:'endpoint' });
       if(error){ toast('No se pudo guardar la suscripción'); return; }
       toast('Notificaciones activadas');
       updateNotifBtnLabel();
-    }catch(e){
-      toast('No se pudo activar: ' + e.message);
-    }
+    }catch(e){ toast('No se pudo activar: ' + e.message); }
     $('user-sheet').classList.remove('active');
   });
 
   // ---------- helpers ----------
-  function localDateStr(d){
-    d = d || new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth()+1).padStart(2,'0');
-    const day = String(d.getDate()).padStart(2,'0');
-    return `${y}-${m}-${day}`;
-  }
   function escapeHtml(str){
     return String(str||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   }
@@ -1234,9 +1067,7 @@
   init();
 
   if('serviceWorker' in navigator){
-    window.addEventListener('load', ()=>{
-      navigator.serviceWorker.register('sw.js').catch(()=>{});
-    });
+    window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
   }
 
   document.addEventListener('gesturestart', (e)=>{ if(!fullscreenZoomOpen) e.preventDefault(); });

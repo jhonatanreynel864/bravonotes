@@ -1,7 +1,7 @@
 // Service worker de Bravonotes.
 // Además de dejar la app instalable, ahora también recibe y muestra
 // las notificaciones push reales que manda el servidor.
-const CACHE_NAME = 'bravonotes-v3';
+const CACHE_NAME = 'bravonotes-v4';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -11,11 +11,9 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Solo tocamos peticiones GET dentro del propio dominio de la app
-// (cargar la página, imágenes, css, js). Todo lo demás —subir archivos,
-// llamadas a Supabase, o cualquier método que no sea GET— lo dejamos
-// pasar de largo sin tocarlo, porque interceptarlo puede romper el
-// cuerpo de la petición (por ejemplo, al subir una foto).
+// Solo tocamos peticiones GET dentro del propio dominio de la app.
+// Todo lo demás (subir archivos, llamadas a Supabase, o cualquier
+// método que no sea GET) lo dejamos pasar de largo sin tocarlo.
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;

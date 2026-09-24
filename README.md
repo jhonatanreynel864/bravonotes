@@ -1,33 +1,37 @@
-# Bravonotes — Vestuario de la mascota + racha permanente
+# Bravonotes — Edición de Halloween 🎃
 
-## Importante: esta actualización incluye la de la vez pasada
+## Qué cambió
 
-La actualización anterior (racha que ya no se reinicia) todavía no la habías subido — quedó incluida aquí también, así que con subir esta ya te quedan las dos aplicadas juntas.
+1. **Tema visual completo** — fondo oscuro morado/negro con acentos naranjas, murciélagos y telarañas decorativas, inspirado en la imagen que mandaste. Aplica a toda la app, incluida Gastos (que ahora usa un verde oscuro en vez de tonos claros, pero conserva su identidad propia).
+2. **Mascota nueva** — la vampira que mandaste, usada tal cual (sin modificar), tanto en la racha (Tareas) como en Gastos.
+3. **Logo nuevo** — el que me pasaste, tal cual, en el ícono de la app, la pantalla de login y el encabezado.
+4. **Vestuario eliminado** — quité por completo el sistema de moños y gorros. Ahora en Tareas solo se ve la mascota con la racha, sin ropa ni clóset.
+5. **Mensajes de "buenos días" nuevos y rotativos** — usé los 9 mensajes que me pasaste. Cada día se manda uno distinto al del día anterior (van rotando en el orden de tu lista, y se repite el ciclo después del noveno).
 
-## Qué hay nuevo
+## Qué reemplazar en tu proyecto
 
-1. **Racha permanente**: suma +1 la primera vez que completas una tarea cada día, y no se resetea si te saltas un día.
-2. **Vestuario de la mascota**: 10 moños + 15 gorros, usando tus imágenes exactas. Se desbloquean con los días de racha (los primeros 3 de cada tipo a los 2 días, el resto a los 5). Se abre tocando el botón del gancho junto a la racha, o tocando la mascota directamente.
-3. **Mascota nueva en Gastos**: reemplacé la mascota morada/naranja que había por la verde que me mandaste, en el encabezado y en el estado vacío.
+Reemplaza estos archivos por los de este zip:
+- `index.html`
+- `app.js`
+- `sw.js`
+- `manifest.json`
+- `api/check-notifications.js`
+- La carpeta `icons/` completa (trae el logo y la mascota nuevos)
 
-## Paso obligatorio — correr el SQL nuevo
+## Qué NO tocar
 
-1. Supabase → **SQL Editor** → **New query**.
-2. Copia y pega el contenido de `supabase/schema_wardrobe.sql`.
-3. **Run**.
-
-(Si por alguna razón tampoco corriste `schema_streak.sql` de la entrega anterior, corre ese primero — sin él la racha no funciona.)
+- **`config.js`** — no lo reemplaces, ya tiene tus llaves de Supabase y la llave VAPID configuradas. El de este zip es un ejemplo en blanco, si lo pegas encima se rompe la conexión con tu base de datos.
+- **`package.json`** — no cambió, no hace falta tocarlo.
+- Los archivos `.sql` en `supabase/` — ninguno cambió, no hace falta correr nada nuevo esta vez.
 
 ## Subir los cambios
 
 ```bash
 git add .
-git commit -m "Vestuario de la mascota, racha permanente, y mascota nueva en gastos"
+git commit -m "Edicion de Halloween: tema visual, mascota, logo y buenos dias rotativos"
 git push
 ```
 
-No hace falta tocar nada en Vercel ni en cron-job.org.
+No hace falta tocar nada en Vercel ni en cron-job.org — todo lo demás sigue igual.
 
-## Sobre las imágenes
-
-Recorté cada moño y cada gorro de tus dos imágenes de referencia (sin modificarlos), y usé la mascota verde exactamente como me la mandaste. La posición de cada accesorio sobre la mascota la calibré a mano comparándola con las fotos de ejemplo que mandaste de cómo se ve cada uno puesto.
+Como siempre: después de que Vercel despliegue, **borra la app de tu pantalla de inicio y vuélvela a agregar** para que tome el ícono y el tema nuevos (iOS cachea agresivamente el ícono viejo si no reinstalas).
