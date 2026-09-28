@@ -47,8 +47,10 @@
   .blob1{width:340px;height:340px;background:var(--o-500);top:-140px;left:-100px;}
   .blob2{width:300px;height:300px;background:var(--p-600);top:35%;right:-140px;opacity:.3;}
   .blob3{width:280px;height:280px;background:#4b1f6e;bottom:-100px;left:-80px;opacity:.4;}
-  .bat{position:fixed;z-index:0;opacity:.18;pointer-events:none;font-size:22px;}
-  .bat1{top:8%;left:10%;} .bat2{top:16%;right:14%;} .bat3{bottom:22%;left:6%;}
+  .bat{position:fixed;z-index:1;opacity:.55;pointer-events:none;font-size:26px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
+  .bat1{top:6px;left:16px;} .bat2{top:10px;right:20px;font-size:20px;} .bat3{bottom:100px;left:10px;font-size:22px;opacity:.4;}
+  .web1{position:fixed;z-index:1;opacity:.5;font-size:34px;top:-6px;right:-4px;pointer-events:none;}
+  .web2{position:fixed;z-index:1;opacity:.35;font-size:28px;bottom:96px;right:6px;pointer-events:none;}
 
   #login-screen{
     position:relative;z-index:1;min-height:100vh;min-height:100dvh;
@@ -249,8 +251,18 @@
 
   nav.tabbar{position:fixed;left:0;right:0;bottom:calc(10px + env(safe-area-inset-bottom));z-index:30;display:flex;justify-content:center;}
   .tabbar-inner{position:relative;display:flex;gap:2px;padding:8px;background:var(--glass-strong);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid var(--glass-border);border-radius:var(--r-pill);box-shadow:var(--glass-shadow-lg);}
-  .nav-indicator{position:absolute;top:8px;bottom:8px;left:0;width:0;border-radius:var(--r-pill);background:linear-gradient(135deg, var(--o-500), var(--o-700));box-shadow:0 6px 16px rgba(245,137,31,.4);z-index:0;pointer-events:none;transition:transform .38s cubic-bezier(.34,1.3,.64,1), width .38s cubic-bezier(.34,1.3,.64,1), background .25s ease;}
-  .nav-indicator.gastos{background:linear-gradient(135deg, #34d399, #059669);box-shadow:0 6px 16px rgba(5,150,105,.4);}
+  .tabbar-inner{position:relative;display:flex;gap:2px;padding:8px;background:var(--glass-strong);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1.5px solid rgba(245,137,31,.55);border-radius:var(--r-pill);box-shadow:var(--glass-shadow-lg), 0 0 18px rgba(245,137,31,.15);overflow:visible;}
+  .tabbar-deco{position:absolute;font-size:15px;pointer-events:none;opacity:.85;z-index:2;}
+  .tabbar-deco.bat{top:-11px;left:14px;}
+  .tabbar-deco.web{bottom:-9px;right:10px;font-size:16px;}
+  .nav-indicator{
+    position:absolute;top:6px;bottom:6px;left:0;width:0;border-radius:16px;z-index:0;pointer-events:none;
+    background:radial-gradient(120% 130% at 35% 20%, var(--o-400) 0%, var(--o-500) 45%, var(--o-700) 100%);
+    box-shadow:0 6px 16px rgba(245,137,31,.45), inset 0 -3px 6px rgba(0,0,0,.2);
+    transition:transform .38s cubic-bezier(.34,1.3,.64,1), width .38s cubic-bezier(.34,1.3,.64,1), background .25s ease;
+  }
+  .nav-indicator::before{content:'';position:absolute;top:-5px;left:50%;transform:translateX(-50%);width:7px;height:8px;background:#5c4425;border-radius:3px 3px 0 0;}
+  .nav-indicator.gastos{background:radial-gradient(120% 130% at 35% 20%, #6ee7b7 0%, #34d399 45%, #047857 100%);box-shadow:0 6px 16px rgba(5,150,105,.45), inset 0 -3px 6px rgba(0,0,0,.2);}
   .nav-item{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 11px;border-radius:var(--r-pill);border:none;background:none;cursor:pointer;color:var(--ink-mute);transition:color .2s ease;}
   .nav-item svg{width:19px;height:19px;}
   .nav-item span{font-size:9.5px;font-weight:700;}
@@ -374,7 +386,9 @@
 <div class="blob blob3"></div>
 <div class="bat bat1">🦇</div>
 <div class="bat bat2">🦇</div>
-<div class="bat bat3">🕸️</div>
+<div class="bat bat3">🦇</div>
+<div class="web1">🕸️</div>
+<div class="web2">🕸️</div>
 
 <div id="login-screen">
   <div class="login-card">
@@ -523,6 +537,8 @@
 
     <nav class="tabbar" id="tabbar" style="display:none;">
       <div class="tabbar-inner">
+        <span class="tabbar-deco bat">🦇</span>
+        <span class="tabbar-deco web">🕸️</span>
         <div class="nav-indicator" id="nav-indicator"></div>
         <button class="nav-item active" data-page="calendario"><span data-icon="calendar"></span><span>Agenda</span></button>
         <button class="nav-item" data-page="tareas"><span data-icon="checksq"></span><span>Tareas</span></button>
