@@ -1,18 +1,18 @@
 (function(){
   const DAYS = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"];
   const COLORS = [
-    {name:'blue', bg:'rgba(96,165,250,.14)', border:'#60a5fa'},
-    {name:'green', bg:'rgba(52,211,153,.14)', border:'#34d399'},
-    {name:'purple', bg:'rgba(139,78,242,.14)', border:'#a374fb'},
-    {name:'amber', bg:'rgba(245,137,31,.14)', border:'#f5891f'},
-    {name:'pink', bg:'rgba(244,114,182,.14)', border:'#f472b6'},
-    {name:'rose', bg:'rgba(251,113,133,.14)', border:'#fb7185'},
+    {name:'blue', bg:'rgba(125,211,252,.26)', border:'#7dd3fc'},
+    {name:'green', bg:'rgba(187,247,208,.26)', border:'#bbf7d0'},
+    {name:'purple', bg:'rgba(196,181,253,.26)', border:'#c4b5fd'},
+    {name:'amber', bg:'rgba(255,211,110,.26)', border:'#ffd36e'},
+    {name:'pink', bg:'rgba(249,168,212,.26)', border:'#f9a8d4'},
+    {name:'rose', bg:'rgba(255,143,156,.26)', border:'#ff8f9c'},
   ];
   const EXP_CATEGORIES = [
-    {key:'transporte', label:'Transporte', icon:'car', cls:'g-cat-transporte', color:'#34d399'},
-    {key:'alimentacion', label:'Alimentación', icon:'food', cls:'g-cat-alimentacion', color:'#bef264'},
-    {key:'fotocopias', label:'Fotocopias', icon:'copy', cls:'g-cat-fotocopias', color:'#5eead4'},
-    {key:'otros', label:'Otros', icon:'dots', cls:'g-cat-otros', color:'#fbbf24'},
+    {key:'transporte', label:'Transporte', icon:'car', cls:'g-cat-transporte', color:'#ffd36e'},
+    {key:'alimentacion', label:'Alimentación', icon:'food', cls:'g-cat-alimentacion', color:'#ff9aa8'},
+    {key:'fotocopias', label:'Fotocopias', icon:'copy', cls:'g-cat-fotocopias', color:'#b9e6ff'},
+    {key:'otros', label:'Otros', icon:'dots', cls:'g-cat-otros', color:'#ffffff'},
   ];
   const WIDGET_OPTIONS = [
     {key:'clases', label:'Clases de hoy', icon:'calendar'},
@@ -21,13 +21,12 @@
     {key:'apuntes', label:'Apuntes recientes', icon:'clip'},
   ];
 
-  const MASCOT_HALLOWEEN = `<img src="icons/mascot-halloween.png" alt="" style="width:100%;height:100%;object-fit:contain;display:block;">`;
-  const MASCOT_GASTOS_HALLOWEEN = `<img src="icons/mascot-gastos-halloween.png" alt="" style="width:100%;height:100%;object-fit:contain;display:block;">`;
+  const MASCOT_NAVIDAD = `<img src="icons/mascot-navidad.png" alt="" style="width:100%;height:100%;object-fit:contain;display:block;">`;
 
   if(!window.SUPABASE_URL || window.SUPABASE_URL.includes('TU-PROYECTO')){
     document.addEventListener('DOMContentLoaded', ()=>{
-      const el = document.getElementById('login-screen');
-      if(el) el.innerHTML = `<div style="max-width:380px;text-align:center;color:#fff;font-family:sans-serif;padding:24px;background:#2a1550;border-radius:20px;">
+      const el = document.getElementById('intro-screen');
+      if(el) el.innerHTML = `<div style="max-width:380px;text-align:center;color:#fff;font-family:sans-serif;padding:24px;background:#0b3d24;border-radius:20px;">
         Falta configurar Supabase.<br><br>Abre <code>config.js</code> y pon la URL y la anon key de tu proyecto.
       </div>`;
     });
@@ -99,29 +98,75 @@
   // ============================================================
   // AUTH
   // ============================================================
-  $('btn-google-login').addEventListener('click', async ()=>{
+  // ---------- Intro (video) en lugar de la pantalla de login ----------
+  const introEl = $('intro-screen');
+  const introVideo = $('intro-video');
+  let introReady = Promise.resolve();
+
+  function playIntro(){
+    introEl.classList.remove('hide','needs-login');
+    introReady = new Promise(resolve=>{
+      let settled = false;
+      const finish = (delay)=>{ if(settled) return; settled = true; setTimeout(resolve, delay); };
+      introVideo.onended = ()=>finish(500);          // deja ver el logo final medio segundo
+      introVideo.onerror = ()=>finish(300);
+      setTimeout(()=>finish(0), 4500);               // seguro por si el video no carga
+      try{
+        introVideo.currentTime = 0;
+        const p = introVideo.play();
+        if(p && p.catch) p.catch(()=>finish(1200));  // autoplay bloqueado
+      }catch(e){ finish(1200); }
+    });
+    return introReady;
+  }
+  async function revealApp(){
+    await introReady;
+    introEl.classList.add('hide');
+  }
+  function showLoginHint(){
+    introEl.classList.remove('hide');
+    introEl.classList.add('needs-login');
+  }
+  async function startGoogleLogin(){
+    sessionStorage.setItem('bn_login_try', String(Date.now()));
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: window.location.origin + window.location.pathname }
     });
-    if(error) toast('No se pudo iniciar sesión: ' + error.message);
+    if(error){ toast('No se pudo iniciar sesión: ' + error.message); showLoginHint(); }
+  }
+  introEl.addEventListener('click', ()=>{
+    if(introEl.classList.contains('needs-login')) startGoogleLogin();
   });
   $('btn-logout').addEventListener('click', async ()=>{
     $('user-sheet').classList.remove('active');
     await supabase.auth.signOut();
   });
   supabase.auth.onAuthStateChange((event, session)=>{
-    if(event === 'SIGNED_IN' && session) enterApp(session.user);
+    if(event === 'SIGNED_IN' && session) enterApp(session.user).then(revealApp);
     if(event === 'SIGNED_OUT') showLogin();
   });
   async function init(){
+    playIntro();
     const { data: { session } } = await supabase.auth.getSession();
-    if(session) await enterApp(session.user);
+    if(session){
+      sessionStorage.removeItem('bn_login_try');
+      await enterApp(session.user);
+      await revealApp();
+      return;
+    }
+    // Sin sesión: tras el video se abre Google directamente (sin tarjeta de login).
+    await introReady;
+    const last = parseInt(sessionStorage.getItem('bn_login_try') || '0', 10);
+    const recentlyTried = Date.now() - last < 20000;
+    const oauthError = /[?&#](error|error_description)=/.test(location.search + location.hash);
+    if(recentlyTried || oauthError) showLoginHint(); else startGoogleLogin();
   }
   function showLogin(){
-    $('login-screen').style.display = 'flex';
     $('app').classList.remove('active');
     $('tabbar').style.display = 'none';
+    try{ introVideo.pause(); introVideo.currentTime = introVideo.duration || 1.2; }catch(e){}
+    showLoginHint();
   }
   async function enterApp(user){
     data.user = {
@@ -129,7 +174,6 @@
       email: user.email,
       avatarUrl: user.user_metadata?.avatar_url || null,
     };
-    $('login-screen').style.display = 'none';
     $('app').classList.add('active');
     $('tabbar').style.display = 'flex';
     requestAnimationFrame(moveNavIndicator);
@@ -285,7 +329,7 @@
     if(data.widget === 'clases'){
       titleEl.textContent = 'Tus clases de hoy';
       const todays = data.schedule.filter(c=>c.day===todayIdx).sort((a,b)=>a.time.localeCompare(b.time));
-      if(todays.length===0){ body.innerHTML = '<div class="widget-empty">No tienes clases hoy 🎃</div>'; return; }
+      if(todays.length===0){ body.innerHTML = '<div class="widget-empty">No tienes clases hoy 🎄</div>'; return; }
       body.innerHTML = todays.map(c=>`<div class="widget-row"><span class="t">${c.time}</span><span class="s">${escapeHtml(c.subject)}</span></div>`).join('');
     } else if(data.widget === 'tareas'){
       titleEl.textContent = 'Tareas pendientes';
@@ -449,7 +493,7 @@
   // TAREAS + RACHA
   // ============================================================
   function burstConfetti(el){
-    const colors = ['#f5891f','#8b4ef2','#34d399','#fb7185','#fbbf24'];
+    const colors = ['#ffd36e','#ffffff','#34d399','#ff4d5e','#f2a900'];
     for(let i=0;i<8;i++){
       const piece = document.createElement('span');
       piece.className = 'confetti-piece';
@@ -703,7 +747,7 @@
     fullscreenZoomOpen = true;
     const wrap = document.createElement('div');
     wrap.id = 'img-fullscreen';
-    wrap.style.cssText = 'position:fixed;inset:0;z-index:200;background:rgba(5,0,15,.95);display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none;';
+    wrap.style.cssText = 'position:fixed;inset:0;z-index:200;background:rgba(25,3,8,.95);display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none;';
     wrap.innerHTML = `
       <img id="img-fs-img" src="${url}" draggable="false" style="max-width:90%;max-height:90%;touch-action:none;user-select:none;-webkit-user-select:none;will-change:transform;transition:transform .15s ease-out;">
       <button id="img-fullscreen-close" style="position:fixed;top:calc(16px + env(safe-area-inset-top));right:16px;width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;z-index:2;">${ICON.x}</button>
@@ -845,8 +889,8 @@
   function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
 
   function renderGastos(){
-    $('g-mascot-head').innerHTML = MASCOT_GASTOS_HALLOWEEN;
-    $('g-mascot-nobudget').innerHTML = MASCOT_GASTOS_HALLOWEEN;
+    $('g-mascot-head').innerHTML = MASCOT_NAVIDAD;
+    $('g-mascot-nobudget').innerHTML = MASCOT_NAVIDAD;
     const monthLabel = capitalize(new Date().toLocaleDateString('es-ES', {month:'long', year:'numeric'}));
     $('g-budget-month').textContent = monthLabel;
     const spent = data.expenses.reduce((s,e)=> s + e.amount, 0);
@@ -907,7 +951,7 @@
 
     const list = $('g-expenses-list');
     if(data.expenses.length === 0){
-      list.innerHTML = `<div class="g-empty"><div class="g-mascot" style="width:88px;">${MASCOT_GASTOS_HALLOWEEN}</div><p>Aún no registras gastos este mes.</p></div>`;
+      list.innerHTML = `<div class="g-empty"><div class="g-mascot" style="width:88px;">${MASCOT_NAVIDAD}</div><p>Aún no registras gastos este mes.</p></div>`;
     } else {
       list.innerHTML = '';
       data.expenses.forEach(e=>{

@@ -6,7 +6,7 @@
 <title>Bravonotes</title>
 <link rel="icon" href="icons/icon-192.png">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#180f2e">
+<meta name="theme-color" content="#c1121f">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Bravonotes">
@@ -16,62 +16,36 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
+    --red:#c1121f;
     --p-500:#8b4ef2; --p-600:#7A2FE0; --p-700:#5f22b3;
-    --o-400:#ff9d3d; --o-500:#f5891f; --o-600:#dd6a10; --o-700:#b3540c;
-    --h-bg1:#160c2b; --h-bg2:#241338; --h-bg3:#0f0a1f;
-    --glass:rgba(45,28,74,.55); --glass-strong:rgba(35,20,60,.82); --glass-border:rgba(255,157,61,.22);
-    --glass-shadow:0 8px 32px rgba(0,0,0,.35); --glass-shadow-lg:0 20px 50px rgba(0,0,0,.5);
-    --ink:#f3ecff; --ink-soft:rgba(243,236,255,.72); --ink-mute:rgba(243,236,255,.5); --ink-faint:rgba(243,236,255,.3);
-    --rose:#fb7185; --rose-soft:rgba(251,113,133,.16);
-    --amber-soft:rgba(245,137,31,.16);
-    --g-bg:#0f1f18; --g-mint:rgba(52,211,153,.16); --g-green:#34d399; --g-green-deep:#10b981;
-    --g-ink:#eafff5; --g-ink-mute:rgba(234,255,245,.55); --g-card:rgba(20,45,38,.75); --g-card-line:rgba(52,211,153,.22);
-    --g-shadow:0 10px 28px rgba(0,0,0,.4);
+    --o-400:#ffd36e; --o-500:#f7b733; --o-600:#e09a12; --o-700:#c98000;
+    --sheen:linear-gradient(155deg, rgba(255,255,255,.28) 0%, rgba(255,255,255,.08) 24%, rgba(255,255,255,0) 52%, rgba(255,255,255,.09) 100%);
+    --glass:var(--sheen), rgba(15,112,66,.88);
+    --glass-strong:var(--sheen), rgba(9,82,49,.95);
+    --glass-border:rgba(255,255,255,.28);
+    --glass-shadow:inset 0 1.5px 0 rgba(255,255,255,.5), inset 0 -1px 0 rgba(0,0,0,.2), inset 0 0 24px rgba(255,255,255,.06), 0 12px 30px rgba(70,0,12,.38);
+    --glass-shadow-lg:inset 0 1.5px 0 rgba(255,255,255,.5), inset 0 -1px 0 rgba(0,0,0,.22), 0 22px 50px rgba(50,0,8,.5);
+    --ink:#fff8ee; --ink-soft:rgba(255,248,238,.82); --ink-mute:rgba(255,248,238,.7); --ink-faint:rgba(255,248,238,.48);
+    --rose:#ff8f9c; --rose-soft:rgba(255,143,156,.18);
+    --amber-soft:rgba(255,211,110,.18);
+    --g-bg:#c1121f; --g-mint:rgba(255,255,255,.16); --g-green:#ffd36e; --g-green-deep:#f2a900;
+    --g-ink:#fff8ee; --g-ink-mute:rgba(255,248,238,.72); --g-card:var(--glass); --g-card-line:rgba(255,255,255,.26);
+    --g-shadow:var(--glass-shadow);
     --r-s:12px; --r-m:18px; --r-l:26px; --r-pill:999px;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{height:100%;overflow-x:hidden;}
   body{
     margin:0;font-family:'Plus Jakarta Sans', sans-serif;color:var(--ink);
-    background:radial-gradient(120% 80% at 20% 0%, #2b1750 0%, transparent 55%),
-      radial-gradient(100% 70% at 100% 10%, #3a1440 0%, transparent 50%),
-      var(--h-bg1);
+    background:var(--red);
     overflow-x:hidden;touch-action:pan-y;position:relative;width:100%;
   }
   h1,h2,h3,.brand-word{font-family:'Sora', sans-serif;}
   button{font-family:inherit;}
   svg.icon{width:20px;height:20px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;display:block;flex-shrink:0;}
-  ::selection{background:rgba(245,137,31,.35);}
+  ::selection{background:rgba(255,211,110,.4);}
 
-  .blob{position:fixed;border-radius:50%;filter:blur(80px);z-index:0;opacity:.35;pointer-events:none;}
-  .blob1{width:340px;height:340px;background:var(--o-500);top:-140px;left:-100px;}
-  .blob2{width:300px;height:300px;background:var(--p-600);top:35%;right:-140px;opacity:.3;}
-  .blob3{width:280px;height:280px;background:#4b1f6e;bottom:-100px;left:-80px;opacity:.4;}
-  .bat{position:fixed;z-index:1;opacity:.55;pointer-events:none;font-size:26px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));}
-  .bat1{top:6px;left:16px;} .bat2{top:10px;right:20px;font-size:20px;} .bat3{bottom:100px;left:10px;font-size:22px;opacity:.4;}
-  .web1{position:fixed;z-index:1;opacity:.5;font-size:34px;top:-6px;right:-4px;pointer-events:none;}
-  .web2{position:fixed;z-index:1;opacity:.35;font-size:28px;bottom:96px;right:6px;pointer-events:none;}
 
-  #login-screen{
-    position:relative;z-index:1;min-height:100vh;min-height:100dvh;
-    display:flex;align-items:center;justify-content:center;
-    padding:24px 24px calc(24px + env(safe-area-inset-bottom));
-  }
-  .login-card{
-    width:100%;max-width:380px;background:var(--glass-strong);
-    backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);
-    border:1px solid var(--glass-border);border-radius:var(--r-l);box-shadow:var(--glass-shadow-lg);
-    padding:36px 26px 28px;
-  }
-  .login-logo{display:flex;justify-content:center;margin-bottom:16px;}
-  .login-card h1{font-size:26px;font-weight:800;margin:0 0 4px;text-align:center;color:var(--o-400);}
-  .login-card p.sub{color:var(--ink-mute);margin:0 0 26px;font-size:13.5px;text-align:center;}
-  .btn-google{
-    width:100%;padding:13px;border-radius:var(--r-s);border:1.5px solid rgba(255,255,255,.14);
-    background:rgba(255,255,255,.06);color:var(--ink);font-weight:700;font-size:14.5px;cursor:pointer;
-    display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;
-  }
-  .login-foot{margin-top:16px;font-size:12px;color:var(--ink-faint);text-align:center;}
 
   #app{display:none;}
   #app.active{display:flex;height:100vh;height:100dvh;width:100%;}
@@ -250,11 +224,8 @@
   .btn-ghost-sm svg{width:14px;height:14px;}
 
   nav.tabbar{position:fixed;left:0;right:0;bottom:calc(10px + env(safe-area-inset-bottom));z-index:30;display:flex;justify-content:center;}
-  .tabbar-inner{position:relative;display:flex;gap:2px;padding:8px;background:var(--glass-strong);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid var(--glass-border);border-radius:var(--r-pill);box-shadow:var(--glass-shadow-lg);}
   .tabbar-inner{position:relative;display:flex;gap:2px;padding:8px;background:var(--glass-strong);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1.5px solid rgba(245,137,31,.55);border-radius:var(--r-pill);box-shadow:var(--glass-shadow-lg), 0 0 18px rgba(245,137,31,.15);overflow:visible;}
   .tabbar-deco{position:absolute;font-size:15px;pointer-events:none;opacity:.85;z-index:2;}
-  .tabbar-deco.bat{top:-11px;left:14px;}
-  .tabbar-deco.web{bottom:-9px;right:10px;font-size:16px;}
   .nav-indicator{
     position:absolute;top:6px;bottom:6px;left:0;width:0;border-radius:16px;z-index:0;pointer-events:none;
     background:radial-gradient(120% 130% at 35% 20%, var(--o-400) 0%, var(--o-500) 45%, var(--o-700) 100%);
@@ -377,31 +348,147 @@
   .g-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;}
   .g-bar-col .bar{width:100%;max-width:30px;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg, var(--g-green), var(--g-green-deep));min-height:4px;transition:height .8s cubic-bezier(.22,1,.36,1);}
   .g-bar-col .lbl{font-size:10px;font-weight:700;color:var(--g-ink-mute);text-transform:capitalize;}
-</style>
+
+  /* ============ NAVIDAD: nieve, intro, liquid glass verde sobre rojo ============ */
+  #snowCanvas{position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:0;}
+
+  #intro-screen{position:fixed;inset:0;z-index:300;background:#5433a8;display:flex;align-items:center;justify-content:center;overflow:hidden;transition:opacity .6s ease, visibility .6s ease;}
+  #intro-screen.hide{opacity:0;visibility:hidden;pointer-events:none;}
+  #intro-video{width:100%;height:100%;object-fit:cover;display:block;}
+  @media (min-aspect-ratio:1/1){ #intro-video{object-fit:contain;} }
+  #intro-hint{position:absolute;left:50%;bottom:calc(56px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(8px);padding:12px 24px;border-radius:var(--r-pill);
+    background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.45);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.5), 0 10px 26px rgba(20,5,60,.35);
+    backdrop-filter:blur(18px) saturate(180%);-webkit-backdrop-filter:blur(18px) saturate(180%);
+    color:#fff;font-weight:700;font-size:14.5px;letter-spacing:.01em;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .4s ease, transform .4s ease;}
+  #intro-screen.needs-login{cursor:pointer;}
+  #intro-screen.needs-login #intro-hint{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* Liquid glass: vidrio verde con brillo especular y bordes de luz */
+  .glass-card, header.topbar, .user-sheet .panel, .modal, .tabbar-inner, .streak-bubble, .apunte-menu, .gastos-theme .g-card{
+    backdrop-filter:blur(26px) saturate(185%);-webkit-backdrop-filter:blur(26px) saturate(185%);
+    border:1px solid var(--glass-border);
+  }
+  .glass-card, header.topbar, .gastos-theme .g-card{box-shadow:var(--glass-shadow);}
+  .user-sheet .panel, .modal, .apunte-menu{box-shadow:var(--glass-shadow-lg);}
+  .streak-bubble{box-shadow:var(--glass-shadow);}
+  .streak-bubble::before{background:rgba(15,112,66,.95);}
+  .tabbar-inner{background:var(--glass-strong);border:1.5px solid rgba(255,255,255,.42);box-shadow:var(--glass-shadow-lg), 0 0 0 1px rgba(0,0,0,.08);}
+  .overlay{background:rgba(40,0,6,.55);}
+  .user-sheet .scrim{background:rgba(40,0,6,.5);}
+
+  /* Texto sobre el fondo rojo */
+  .page-head h1{color:#fff;text-shadow:0 2px 10px rgba(70,0,12,.35);}
+  .page-head .sub{color:rgba(255,255,255,.88);}
+  .brand-word{color:#fff3c4;}
+  .avatar-btn{background:linear-gradient(135deg,#ffe08a,#c1121f);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.5), 0 4px 12px rgba(70,0,12,.4);}
+  .user-sheet .avatar-lg{background:linear-gradient(135deg,#ffe08a,#c1121f);}
+
+  /* Botones: dorado navideño */
+  .fab-btn, .btn-dark{
+    background:linear-gradient(135deg,#ffe58f,#f2a900);color:#0b3d24;
+    box-shadow:inset 0 1.5px 0 rgba(255,255,255,.65), 0 8px 20px rgba(70,0,12,.35);
+  }
+  .chip-filter{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.34);color:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
+  .chip-filter.active{background:linear-gradient(135deg,#ffe58f,#f2a900);color:#0b3d24;border-color:transparent;box-shadow:inset 0 1.5px 0 rgba(255,255,255,.6);}
+  .btn-ghost, .btn-ghost-sm, .sheet-btn{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3);}
+  .sheet-btn{color:var(--o-400);}
+  .btn-danger-ghost{background:rgba(255,143,156,.12);border-color:rgba(255,143,156,.45);color:#ffc2c9;}
+
+  /* Tarjetas / filas */
+  .day-card.today{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.3), var(--glass-shadow);}
+  .day-card-head .dtoday-tag{color:#0b3d24;background:linear-gradient(135deg,#ffe58f,#f2a900);}
+  .class-row{border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.22);}
+  .class-pending{color:#ffc2c9;}
+  .widget-row{border-bottom-color:rgba(255,255,255,.14);}
+  .task-check{border-color:rgba(255,255,255,.55);background:rgba(255,255,255,.1);}
+  .task-check.done{background:linear-gradient(135deg,#ffe58f,#f2a900);color:#0b3d24;border-color:transparent;}
+  .tag{background:rgba(255,255,255,.16);color:#fff;}
+  .tag.due{background:var(--amber-soft);color:var(--o-400);}
+  .isq-purple{background:rgba(255,255,255,.16);color:#fff;}
+  .empty-state{background:rgba(15,112,66,.55);border-color:rgba(255,255,255,.4);color:rgba(255,255,255,.9);}
+  .dropzone{border-color:rgba(255,255,255,.4);}
+  .dropzone.drag{border-color:#ffd36e;background:rgba(255,211,110,.1);}
+  .apunte-menu button{color:#ffc2c9;}
+  .apunte-menu-btn{background:rgba(255,255,255,.14);}
+  .check-field input{accent-color:#f7b733;}
+  .swatch.sel{border-color:#fff;}
+  .tabbar-toggle{background:rgba(0,0,0,.18);}
+  .tabbar-toggle button.active{background:rgba(255,255,255,.18);color:#fff;}
+
+  /* Formularios */
+  .field input, textarea, select{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3);}
+  .field input:focus, textarea:focus, select:focus{border-color:#ffd36e;box-shadow:0 0 0 4px rgba(255,211,110,.2);}
+  select option{color:#0b3d24;background:#fff;}
+  ::placeholder{color:rgba(255,248,238,.45);}
+  input, select, textarea{color-scheme:dark;}
+
+  /* Barra de pestañas */
+  .tabbar-deco{font-size:15px;opacity:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35));}
+  .tabbar-deco.tree{top:-13px;left:16px;}
+  .tabbar-deco.flake{bottom:-8px;right:12px;font-size:15px;}
+  .nav-indicator, .nav-indicator.gastos{
+    background:radial-gradient(120% 130% at 35% 20%, #ff7b7b 0%, #e11d2e 45%, #9b0d1a 100%);
+    box-shadow:0 6px 16px rgba(155,13,26,.55), inset 0 1.5px 0 rgba(255,255,255,.5), inset 0 -3px 6px rgba(0,0,0,.2);
+  }
+  /* gorrito de nieve sobre la pestaña activa */
+  .nav-indicator::before{top:-4px;width:46%;height:7px;border-radius:7px;background:#fff;box-shadow:0 0 9px rgba(255,255,255,.75);}
+  .nav-item{color:rgba(255,255,255,.72);}
+  .nav-item.active{color:#fff;}
+
+  .toast{background:#0b3d24;border:1px solid rgba(255,255,255,.3);z-index:400;}
+
+  /* Gastos: mismo fondo rojo de toda la app, tarjetas verdes de vidrio */
+  .gastos-theme{background:transparent;border-radius:0;}
+  .gastos-theme .g-head h1{color:#fff;text-shadow:0 2px 10px rgba(70,0,12,.35);}
+  .gastos-theme .g-head .g-sub{color:rgba(255,255,255,.88);}
+  .gastos-overlay .modal{background:var(--glass-strong);border:1px solid var(--glass-border);}
+  .g-bar-track{background:rgba(0,0,0,.28);}
+  .g-bar-fill, .g-bar-col .bar{background:linear-gradient(90deg,#ffe58f,#f2a900);}
+  .g-bar-col .bar{background:linear-gradient(180deg,#ffe58f,#f2a900);}
+  .g-bar-fill.over{background:linear-gradient(90deg,#ff8a5b,#ff3b4a);}
+  .g-add-btn, .g-btn-save{background:linear-gradient(135deg,#ffe58f,#f2a900);color:#0b3d24;box-shadow:inset 0 1.5px 0 rgba(255,255,255,.6), 0 8px 20px rgba(70,0,12,.3);}
+  .g-btn-cancel{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3);}
+  .g-cat-opt{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.26);}
+  .g-cat-opt.sel{border-color:#ffd36e;background:rgba(255,211,110,.16);}
+  .g-field input{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3);}
+  .g-budget-foot .warn{color:#ffc2c9;}
+  .g-cat-transporte{background:rgba(255,211,110,.2);color:#ffd36e;}
+  .g-cat-alimentacion{background:rgba(255,143,156,.22);color:#ffb3bd;}
+  .g-cat-fotocopias{background:rgba(160,220,255,.2);color:#b9e6ff;}
+  .g-cat-otros{background:rgba(255,255,255,.2);color:#fff;}
+
+  /* ===== V3: liquid glass realmente translúcido ===== */
+  :root{
+    --sheen:linear-gradient(145deg, rgba(255,255,255,.34) 0%, rgba(255,255,255,.10) 14%, rgba(255,255,255,.0) 40%, rgba(255,255,255,.0) 70%, rgba(255,255,255,.16) 100%);
+    --glass:var(--sheen), rgba(0,95,55,.16);
+    --glass-strong:var(--sheen), rgba(20,170,100,.30);
+    --glass-border:rgba(255,255,255,.55);
+    --glass-shadow:inset 0 1.5px 0 rgba(255,255,255,.9), inset 1.5px 0 0 rgba(255,255,255,.35), inset 0 -1.5px 0 rgba(255,255,255,.3), inset -1px 0 0 rgba(255,255,255,.15), inset 0 0 40px rgba(255,255,255,.10), 0 16px 36px rgba(60,0,10,.28);
+    --glass-shadow-lg:inset 0 1.5px 0 rgba(255,255,255,.9), inset 0 -1.5px 0 rgba(255,255,255,.3), inset 0 0 40px rgba(255,255,255,.10), 0 26px 56px rgba(50,0,8,.45);
+  }
+  .glass-card, header.topbar, .user-sheet .panel, .modal, .tabbar-inner, .streak-bubble, .apunte-menu, .gastos-theme .g-card{
+    backdrop-filter:blur(7px) saturate(165%) hue-rotate(118deg) brightness(1.08) contrast(1.05);
+    -webkit-backdrop-filter:blur(7px) saturate(165%) hue-rotate(118deg) brightness(1.08) contrast(1.05);
+  }
+  .modal, .user-sheet .panel{backdrop-filter:blur(22px) saturate(190%) hue-rotate(120deg) brightness(1.15);-webkit-backdrop-filter:blur(22px) saturate(190%) hue-rotate(120deg) brightness(1.15);}
+  .streak-bubble::before{background:rgba(60,200,130,.6);}
+  .glass-card, .gastos-theme .g-card, header.topbar, .modal, .tabbar-inner{text-shadow:0 1px 3px rgba(0,50,25,.55);}
+  .class-row{background:rgba(255,255,255,.12)!important;border:1px solid rgba(255,255,255,.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
+  .field input, textarea, select{background:rgba(255,255,255,.14);}
+  .tabbar-inner{border-color:rgba(255,255,255,.6);}
+  /* barra y modales van encima de tarjetas verdes: sin hue-rotate (evita el azul) */
+  .tabbar-inner{background:var(--sheen), rgba(6,78,46,.80);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);}
+  .modal, .user-sheet .panel{background:var(--sheen), rgba(6,78,46,.84);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);}
+  .apunte-menu{background:var(--sheen), rgba(6,78,46,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);}
+  </style>
 </head>
 <body>
 
-<div class="blob blob1"></div>
-<div class="blob blob2"></div>
-<div class="blob blob3"></div>
-<div class="bat bat1">🦇</div>
-<div class="bat bat2">🦇</div>
-<div class="bat bat3">🦇</div>
-<div class="web1">🕸️</div>
-<div class="web2">🕸️</div>
+<canvas id="snowCanvas" aria-hidden="true"></canvas>
 
-<div id="login-screen">
-  <div class="login-card">
-    <div class="login-logo">
-      <img src="icons/icon-192.png" alt="Bravonotes" width="72" height="72" style="border-radius:18px;display:block;">
-    </div>
-    <h1>Bravonotes</h1>
-    <p class="sub">Tu horario, tareas y apuntes en un solo lugar.</p>
-    <button class="btn-google" id="btn-google-login">
-      <span data-icon="google"></span> Continuar con Google
-    </button>
-    <p class="login-foot">Se guarda en tu cuenta, nadie más lo ve.</p>
-  </div>
+<div id="intro-screen">
+  <video id="intro-video" src="intro.mp4" poster="intro-poster.jpg" muted playsinline webkit-playsinline autoplay preload="auto"></video>
+  <div id="intro-hint">Toca para entrar</div>
 </div>
 
 <div id="app">
@@ -441,7 +528,7 @@
         </div>
         <div class="streak-card" id="streak-card" style="display:none;">
           <div class="streak-mascot-wrap">
-            <img id="streak-mascot-base" src="icons/mascot-halloween.png" alt="" class="streak-mascot">
+            <img id="streak-mascot-base" src="icons/mascot-navidad.png" alt="" class="streak-mascot">
           </div>
           <div class="streak-bubble">
             <div class="streak-flame">🔥</div>
@@ -537,8 +624,8 @@
 
     <nav class="tabbar" id="tabbar" style="display:none;">
       <div class="tabbar-inner">
-        <span class="tabbar-deco bat">🦇</span>
-        <span class="tabbar-deco web">🕸️</span>
+        <span class="tabbar-deco tree">🎄</span>
+        <span class="tabbar-deco flake">❄️</span>
         <div class="nav-indicator" id="nav-indicator"></div>
         <button class="nav-item active" data-page="calendario"><span data-icon="calendar"></span><span>Agenda</span></button>
         <button class="nav-item" data-page="tareas"><span data-icon="checksq"></span><span>Tareas</span></button>
@@ -698,6 +785,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
+<script src="snow.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

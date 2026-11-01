@@ -9,18 +9,18 @@ const { createClient } = require('@supabase/supabase-js');
 
 const TIMEZONE = 'America/Bogota';
 
-// Mensajes de "buenos días" de Halloween — cada día del año usa uno distinto
+// Mensajes de "buenos días" de Navidad — cada día del año usa uno distinto
 // al del día anterior, rotando en orden por esta lista.
 const GOOD_MORNING_MESSAGES = [
-  '🎃 Buenos días, pequeña criatura.',
-  '👻 Buenos días, que la magia comience.',
-  '🧙 Despierta, la magia te espera.',
-  '🌙 Un día mágico comienza hoy.',
-  '🎃 Hoy será un día de miedo… ¡de bonito!',
-  '👻 Buenos días, alma encantada.',
-  '🕷️ Que nada atrape tu alegría.',
-  '🌙 Un hechizo de buenas vibras para ti.',
-  '🌙 Sonríe, hoy hay magia en el aire.',
+  '🎅 Buenos días, ¡hoy se siente a Navidad!',
+  '❄️ Buenos días, que la magia de diciembre te acompañe.',
+  '🎄 Despierta, un día lleno de espíritu navideño te espera.',
+  '⭐ Un día brillante comienza hoy.',
+  '🎁 Hoy el mejor regalo es tu sonrisa.',
+  '☃️ Buenos días, copito de nieve.',
+  '🔔 Que nada apague tu alegría navideña.',
+  '❄️ Una ráfaga de buenas vibras para ti.',
+  '🎅 Sonríe, hoy hay magia navideña en el aire.',
 ];
 
 function getBogotaParts(date) {
