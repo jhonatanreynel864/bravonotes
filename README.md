@@ -5,8 +5,10 @@
 1. **Fondo rojo sólido** en toda la app, con **nieve cayendo** (tu código: 600 copos, velocidad media). La nieve va *detrás* de todo el contenido: cae sobre el rojo, nunca encima de las tarjetas de horarios, tareas, notas, gastos ni modales (`snow.js`).
 2. **Liquid glass verde translúcido**: las tarjetas y la barra superior dejan ver el fondo desenfocado (la nieve se ve como luces suaves detrás), con bordes de luz y reflejo especular. La barra de pestañas y los modales son algo más oscuros para que el texto se lea bien. Botones en dorado, pestaña activa en rojo con "gorrito" de nieve.
 3. **Logo nuevo** tal cual (solo redimensionado) en ícono de la app, ícono de iOS, favicon y encabezado.
-4. **Mascota nueva (Santa)** en los dos lugares donde estaba la mascota: racha (Tareas) y Gastos (cabecera, sin presupuesto y lista vacía). Se le quitó el fondo de cuadritos para que quede transparente.
-5. **Sin pantalla de login con Google**: ahora al abrir la app se reproduce tu video de entrada (`intro.mp4`).
+4. **Mascotas:** Santa en la racha de Tareas y el **duende** en Gastos (cabecera, sin presupuesto y lista vacía). Se le quitó el fondo de cuadritos para que quede transparente.
+5. **Luces de Navidad** en los bordes de todas las tarjetas verdes (`lights.js`): borde verde lima, cable ondulado y bombillos tipo pera de colores que titilan; siguen las esquinas redondeadas. La bolita de la barra de pestañas se vuelve **azul** en Gastos. Se quitaron el 🎄 y el ❄️ de la barra de pestañas.
+5b. **Pantalla completa**: se quitó la banda roja inferior y las pestañas ya no demoran en mostrar el verde (la animación de cambio de página usaba opacidad y apagaba el vidrio).
+6. **Sin pantalla de login con Google**: ahora al abrir la app se reproduce tu video de entrada (`intro.mp4`).
 6. Se quitaron murciélagos, telarañas y calabazas. Gastos ya no tiene su fondo propio: usa el mismo rojo.
 7. Los 9 mensajes de "buenos días" son ahora navideños (`api/check-notifications.js`; edítalos si quieres otros).
 
@@ -20,7 +22,7 @@
 
 Reemplaza / agrega:
 - `index.html`, `app.js`, `sw.js`, `manifest.json`
-- **Nuevos:** `snow.js`, `intro.mp4`, `intro-poster.jpg`
+- **Nuevos:** `snow.js`, `lights.js`, `intro.mp4`, `intro-poster.jpg`
 - `api/check-notifications.js`
 - La carpeta `icons/` completa (logo y mascota nuevos; ya no existen los PNG de Halloween)
 

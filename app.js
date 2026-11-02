@@ -21,6 +21,7 @@
     {key:'apuntes', label:'Apuntes recientes', icon:'clip'},
   ];
 
+  const MASCOT_DUENDE = `<img src="icons/mascot-duende.png" alt="" style="width:100%;height:100%;object-fit:contain;display:block;">`;
   const MASCOT_NAVIDAD = `<img src="icons/mascot-navidad.png" alt="" style="width:100%;height:100%;object-fit:contain;display:block;">`;
 
   if(!window.SUPABASE_URL || window.SUPABASE_URL.includes('TU-PROYECTO')){
@@ -889,8 +890,8 @@
   function capitalize(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
 
   function renderGastos(){
-    $('g-mascot-head').innerHTML = MASCOT_NAVIDAD;
-    $('g-mascot-nobudget').innerHTML = MASCOT_NAVIDAD;
+    $('g-mascot-head').innerHTML = MASCOT_DUENDE;
+    $('g-mascot-nobudget').innerHTML = MASCOT_DUENDE;
     const monthLabel = capitalize(new Date().toLocaleDateString('es-ES', {month:'long', year:'numeric'}));
     $('g-budget-month').textContent = monthLabel;
     const spent = data.expenses.reduce((s,e)=> s + e.amount, 0);
@@ -951,7 +952,7 @@
 
     const list = $('g-expenses-list');
     if(data.expenses.length === 0){
-      list.innerHTML = `<div class="g-empty"><div class="g-mascot" style="width:88px;">${MASCOT_NAVIDAD}</div><p>Aún no registras gastos este mes.</p></div>`;
+      list.innerHTML = `<div class="g-empty"><div class="g-mascot" style="width:88px;">${MASCOT_DUENDE}</div><p>Aún no registras gastos este mes.</p></div>`;
     } else {
       list.innerHTML = '';
       data.expenses.forEach(e=>{

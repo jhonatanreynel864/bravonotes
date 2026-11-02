@@ -48,7 +48,7 @@
 
 
   #app{display:none;}
-  #app.active{display:flex;height:100vh;height:100dvh;width:100%;}
+  #app.active{display:flex;position:fixed;top:0;left:0;right:0;bottom:0;width:auto;height:auto;}
   .shell{position:relative;z-index:1;max-width:460px;margin:0 auto;height:100%;width:100%;display:flex;flex-direction:column;overflow:hidden;}
   header.topbar{
     flex-shrink:0;z-index:20;display:flex;align-items:center;justify-content:space-between;
@@ -87,9 +87,10 @@
     display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:9px;
   }
 
-  main{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding:18px 12px calc(24px + env(safe-area-inset-bottom));}
+  main{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding:18px 12px calc(120px + env(safe-area-inset-bottom));}
   .page{display:none;}
-  .page.active{display:block;animation:fadein .22s ease;}
+  .page.active{display:block;animation:pagein .22s ease;}
+  @keyframes pagein{from{transform:translateY(6px);}to{transform:none;}}
   @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
 
   .page-head{display:flex;align-items:flex-end;justify-content:space-between;margin:6px 4px 16px;gap:10px;}
@@ -189,7 +190,7 @@
   .task-del{background:none;border:none;color:var(--ink-faint);cursor:pointer;padding:3px;}
   .task-del:hover{color:var(--rose);}
 
-  .streak-card{display:flex;align-items:center;gap:6px;margin:0 4px 16px;animation:fadein .3s ease;}
+  .streak-card{display:flex;align-items:center;gap:6px;margin:0 4px 16px;animation:pagein .3s ease;}
   .streak-mascot-wrap{position:relative;flex-shrink:0;width:76px;}
   .streak-mascot{display:block;width:100%;height:auto;animation:g-float 3.4s ease-in-out infinite;}
   @keyframes g-float{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-7px) rotate(-2deg);}}
@@ -423,12 +424,14 @@
   input, select, textarea{color-scheme:dark;}
 
   /* Barra de pestañas */
-  .tabbar-deco{font-size:15px;opacity:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35));}
-  .tabbar-deco.tree{top:-13px;left:16px;}
-  .tabbar-deco.flake{bottom:-8px;right:12px;font-size:15px;}
   .nav-indicator, .nav-indicator.gastos{
     background:radial-gradient(120% 130% at 35% 20%, #ff7b7b 0%, #e11d2e 45%, #9b0d1a 100%);
     box-shadow:0 6px 16px rgba(155,13,26,.55), inset 0 1.5px 0 rgba(255,255,255,.5), inset 0 -3px 6px rgba(0,0,0,.2);
+  }
+  /* en Gastos la bolita de la barra se vuelve azul */
+  .nav-indicator.gastos{
+    background:radial-gradient(120% 130% at 35% 20%, #8fd8ff 0%, #2a8cf0 45%, #0b4fb3 100%);
+    box-shadow:0 6px 16px rgba(20,100,220,.55), inset 0 1.5px 0 rgba(255,255,255,.5), inset 0 -3px 6px rgba(0,0,30,.25);
   }
   /* gorrito de nieve sobre la pestaña activa */
   .nav-indicator::before{top:-4px;width:46%;height:7px;border-radius:7px;background:#fff;box-shadow:0 0 9px rgba(255,255,255,.75);}
@@ -477,10 +480,19 @@
   .field input, textarea, select{background:rgba(255,255,255,.14);}
   .tabbar-inner{border-color:rgba(255,255,255,.6);}
   /* barra y modales van encima de tarjetas verdes: sin hue-rotate (evita el azul) */
-  .tabbar-inner{background:var(--sheen), rgba(6,78,46,.80);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);}
+  .tabbar-inner{background:var(--sheen), rgba(4,96,50,.86);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);}
   .modal, .user-sheet .panel{background:var(--sheen), rgba(6,78,46,.84);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);}
   .apunte-menu{background:var(--sheen), rgba(6,78,46,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);}
-  </style>
+  
+  /* ===== Luces de navidad en los bordes (lights.js) ===== */
+  svg.xlights{position:absolute;pointer-events:none;overflow:visible;z-index:6;}
+  .note-card{overflow:visible;}
+  .xl-g{animation:xl-twinkle 1.7s ease-in-out infinite;}
+  .xl-g1{animation-delay:-.55s;animation-duration:2.1s;}
+  .xl-g2{animation-delay:-1.1s;animation-duration:1.4s;}
+  @keyframes xl-twinkle{0%,100%{opacity:1;}50%{opacity:.72;}}
+  @media (prefers-reduced-motion:reduce){.xl-g{animation:none;}}
+</style>
 </head>
 <body>
 
@@ -624,8 +636,6 @@
 
     <nav class="tabbar" id="tabbar" style="display:none;">
       <div class="tabbar-inner">
-        <span class="tabbar-deco tree">🎄</span>
-        <span class="tabbar-deco flake">❄️</span>
         <div class="nav-indicator" id="nav-indicator"></div>
         <button class="nav-item active" data-page="calendario"><span data-icon="calendar"></span><span>Agenda</span></button>
         <button class="nav-item" data-page="tareas"><span data-icon="checksq"></span><span>Tareas</span></button>
@@ -786,6 +796,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script src="snow.js"></script>
+<script src="lights.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

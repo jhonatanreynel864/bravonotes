@@ -1,7 +1,7 @@
 // Service worker de Bravonotes.
 // Además de dejar la app instalable, ahora también recibe y muestra
 // las notificaciones push reales que manda el servidor.
-const CACHE_NAME = 'bravonotes-v5-navidad';
+const CACHE_NAME = 'bravonotes-v6-navidad';
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
