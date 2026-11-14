@@ -1,7 +1,7 @@
 // Service worker de Bravonotes.
 // - Deja la app instalable y que abra aunque no haya internet (antes no guardaba nada en caché).
 // - Recibe y muestra las notificaciones push reales que manda el servidor.
-const CACHE_NAME = 'bravonotes-v7-premium';
+const CACHE_NAME = 'bravonotes-v8-premium';
 const APP_SHELL = [
   './',
   'index.html',

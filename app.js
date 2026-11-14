@@ -287,10 +287,20 @@
   let resolveAuth;
   const authChecked = new Promise(r=>{ resolveAuth = r; });
 
+  // iOS usa el color de fondo de la página para sombrear la zona de la hora y la batería:
+  // se iguala a lo que se ve (morado en la entrada, rojo en la app) para que no se note un degradado.
+  function setChrome(mode){
+    const intro = mode === 'intro';
+    document.documentElement.classList.toggle('intro-on', intro);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if(meta) meta.setAttribute('content', intro ? '#5538a6' : '#c3121f');
+  }
+
   // El video se reproduce completo, se queda congelado en el último cuadro
   // y entonces aparece el botón para entrar.
   function playIntro(){
     revealed = false;
+    setChrome('intro');
     introEl.classList.remove('hide', 'ready', 'loading', 'no-video');
     let settled = false;
     const finish = ()=>{ if(settled) return; settled = true; onIntroEnd(); };
@@ -338,8 +348,8 @@
     revealed = true;
     introEl.classList.remove('ready', 'loading');
     introEl.classList.add('hide');
+    setChrome('app');
     moveNavIndicator();
-    playEnter(document.querySelector('.page.active'));
     if(fetchFailed) setTimeout(()=>toast(navigator.onLine ? 'Algunos datos no se pudieron cargar' : 'Sin conexión: algunos datos no se cargaron'), 700);
   }
   async function startGoogleLogin(){
@@ -402,6 +412,7 @@
     $('tabbar').hidden = true;
     closeModals();
     freezeOnLastFrame();
+    setChrome('intro');
     introEl.classList.remove('hide', 'loading');
     setIntroLabel('Toca para entrar');
     introEl.classList.add('ready');
@@ -454,18 +465,7 @@
   // La fuente tarda un poco en cargar y cambia el ancho de los botones: recalculamos.
   if(document.fonts && document.fonts.ready) document.fonts.ready.then(moveNavIndicator);
 
-  function playEnter(page){
-    if(!page) return;
-    page.classList.remove('enter');
-    let i = 0;
-    page.querySelectorAll('.page-head, .glass, .stagger').forEach(el=>{
-      el.style.setProperty('--d', Math.min(i++, 12) * 42 + 'ms');
-    });
-    void page.offsetWidth;
-    page.classList.add('enter');
-    clearTimeout(page._enterT);
-    page._enterT = setTimeout(()=>page.classList.remove('enter'), 1300);
-  }
+  // Cambio de pestaña instantáneo: las páginas ya están armadas, solo se muestra la elegida.
   document.querySelectorAll('.nav-item').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       const already = btn.classList.contains('active');
@@ -476,9 +476,7 @@
       btn.classList.add('active');
       moveNavIndicator();
       document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-      const page = $('page-' + btn.dataset.page);
-      page.classList.add('active');
-      playEnter(page);
+      $('page-' + btn.dataset.page).classList.add('active');
     });
   });
 

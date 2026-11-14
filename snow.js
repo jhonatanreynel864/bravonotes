@@ -36,7 +36,10 @@
   const SPRITE_GLOW = makeSprite(true);
 
   function resize() {
-    W = window.innerWidth; H = window.innerHeight;
+    // Se usa el tamaño real del lienzo (en iPhone puede ser más alto que la ventana para cubrir toda la pantalla)
+    const r = canvas.getBoundingClientRect();
+    W = Math.round(r.width) || window.innerWidth;
+    H = Math.round(r.height) || window.innerHeight;
     canvas.width = Math.round(W * DPR);
     canvas.height = Math.round(H * DPR);
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);

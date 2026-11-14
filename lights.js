@@ -64,6 +64,8 @@
 
   function draw(card, svg) {
     const w = card.offsetWidth, h = card.offsetHeight;
+    // Tarjeta oculta (sin tamaño): se conservan las luces que ya tenía para que reaparezcan al instante.
+    if (!w || !h) return;
     const prev = sizes.get(card);
     if (prev && prev[0] === w && prev[1] === h) return;
     sizes.set(card, [w, h]);
@@ -147,7 +149,8 @@
     queued = true;
     requestAnimationFrame(() => { queued = false; mount(); });
   }
-  new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
+  // Las tarjetas nuevas reciben sus luces antes de pintarse (sin parpadeo de "tarjeta sin luces").
+  new MutationObserver(mount).observe(document.body, { childList: true, subtree: true });
   window.addEventListener('resize', () => { document.querySelectorAll('svg.xlights').forEach(s => sizes.delete(s.parentElement)); schedule(); });
   schedule();
 })();
