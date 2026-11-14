@@ -1,13 +1,15 @@
 {
   "name": "Bravonotes",
   "short_name": "Bravonotes",
-  "description": "Tu horario, tareas y apuntes en un solo lugar.",
+  "description": "Tu horario, tareas, notas, apuntes y gastos en un solo lugar.",
+  "lang": "es",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#c1121f",
-  "theme_color": "#c1121f",
+  "background_color": "#b80f1d",
+  "theme_color": "#b80f1d",
+  "categories": ["education", "productivity"],
   "icons": [
     { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },

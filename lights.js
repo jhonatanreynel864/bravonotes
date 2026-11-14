@@ -2,7 +2,8 @@
 // Se dibujan siguiendo el contorno real de cada tarjeta (esquinas redondeadas incluidas) y se
 // redibujan solas cuando la tarjeta cambia de tamaño o aparece una nueva.
 (function () {
-  const SELECTOR = '.glass-card, header.topbar, .gastos-theme .g-card';
+  // Tarjetas verdes de la versión premium (mismas que antes: barra superior, días, tareas, notas, apuntes y gastos)
+  const SELECTOR = 'header.topbar, .hero, .day-card, .task-row, .note-card, .apunte-card, .g-card';
   // rojo-naranja, naranja, amarillo, azul, verde, blanco cálido
   const COLORS = ['#ff3b3b', '#ff9a1f', '#ffe14d', '#2fa8ff', '#3dff7a', '#ffe9c2'];
   const ORDER = [0, 3, 1, 2, 4, 3, 5, 0, 2, 3, 1, 4];   // secuencia fija para que se vea "al azar" pero estable

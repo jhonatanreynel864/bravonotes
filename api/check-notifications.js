@@ -109,19 +109,25 @@ module.exports = async (req, res) => {
     if (diff >= 0 && diff <= 10) {
       results.classes++;
       if (!(await alreadyNotified('clase', c.id))) {
-        await sendToUser(c.user_id, 'Clase en 10 minutos', `${c.subject} a las ${c.time}`);
+        // La hora puede venir como "08:00:00": se muestra "08:00". Y el título dice los minutos reales.
+        const hhmm = String(c.time).slice(0, 5);
+        const title = diff === 0 ? 'Tu clase empieza ahora' : `Tu clase empieza en ${diff} min`;
+        await sendToUser(c.user_id, title, `${c.subject} a las ${hhmm}`);
         await markNotified(c.user_id, 'clase', c.id);
       }
     }
   }
 
   // ---------- Tareas que vencen hoy y no están hechas ----------
-  const { data: tasks } = await supabase.from('tasks').select('*').eq('due_date', todayStr).eq('done', false);
-  for (const t of (tasks || [])) {
-    results.tasks++;
-    if (!(await alreadyNotified('tarea', t.id))) {
-      await sendToUser(t.user_id, 'Tarea pendiente para hoy', t.title);
-      await markNotified(t.user_id, 'tarea', t.id);
+  // Antes se mandaban a las 12:00 a.m. (primer minuto del día). Ahora a partir de las 7:00 a.m.
+  if (hour >= 7) {
+    const { data: tasks } = await supabase.from('tasks').select('*').eq('due_date', todayStr).eq('done', false);
+    for (const t of (tasks || [])) {
+      results.tasks++;
+      if (!(await alreadyNotified('tarea', t.id))) {
+        await sendToUser(t.user_id, 'Tarea pendiente para hoy', t.title);
+        await markNotified(t.user_id, 'tarea', t.id);
+      }
     }
   }
 
