@@ -287,20 +287,11 @@
   let resolveAuth;
   const authChecked = new Promise(r=>{ resolveAuth = r; });
 
-  // iOS usa el color de fondo de la página para sombrear la zona de la hora y la batería:
-  // se iguala a lo que se ve (morado en la entrada, rojo en la app) para que no se note un degradado.
-  function setChrome(mode){
-    const intro = mode === 'intro';
-    document.documentElement.classList.toggle('intro-on', intro);
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if(meta) meta.setAttribute('content', intro ? '#5538a6' : '#c3121f');
-  }
-
   // El video se reproduce completo, se queda congelado en el último cuadro
   // y entonces aparece el botón para entrar.
   function playIntro(){
     revealed = false;
-    setChrome('intro');
+    document.documentElement.classList.add('intro-on');
     introEl.classList.remove('hide', 'ready', 'loading', 'no-video');
     let settled = false;
     const finish = ()=>{ if(settled) return; settled = true; onIntroEnd(); };
@@ -348,7 +339,7 @@
     revealed = true;
     introEl.classList.remove('ready', 'loading');
     introEl.classList.add('hide');
-    setChrome('app');
+    document.documentElement.classList.remove('intro-on');
     moveNavIndicator();
     if(fetchFailed) setTimeout(()=>toast(navigator.onLine ? 'Algunos datos no se pudieron cargar' : 'Sin conexión: algunos datos no se cargaron'), 700);
   }
@@ -412,7 +403,7 @@
     $('tabbar').hidden = true;
     closeModals();
     freezeOnLastFrame();
-    setChrome('intro');
+    document.documentElement.classList.add('intro-on');
     introEl.classList.remove('hide', 'loading');
     setIntroLabel('Toca para entrar');
     introEl.classList.add('ready');

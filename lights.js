@@ -131,7 +131,12 @@
 
   function mount() {
     document.querySelectorAll(SELECTOR).forEach(card => {
-      if (card.querySelector(':scope > svg.xlights')) return;
+      const existing = card.querySelector(':scope > svg.xlights');
+      if (existing) {
+        // tarjeta que estaba oculta al montarse (p. ej. el presupuesto): se dibuja en cuanto se muestra
+        if (!existing.childNodes.length) draw(card, existing);
+        return;
+      }
       if (getComputedStyle(card).position === 'static') card.style.position = 'relative';
       const svg = document.createElementNS(NS, 'svg');
       svg.setAttribute('class', 'xlights');
@@ -150,7 +155,7 @@
     requestAnimationFrame(() => { queued = false; mount(); });
   }
   // Las tarjetas nuevas reciben sus luces antes de pintarse (sin parpadeo de "tarjeta sin luces").
-  new MutationObserver(mount).observe(document.body, { childList: true, subtree: true });
+  new MutationObserver(mount).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden'] });
   window.addEventListener('resize', () => { document.querySelectorAll('svg.xlights').forEach(s => sizes.delete(s.parentElement)); schedule(); });
   schedule();
 })();
